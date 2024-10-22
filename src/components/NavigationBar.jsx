@@ -1,18 +1,15 @@
 import React from "react";
+import { useAuth } from "../context/AuthContext";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
 
 const NavigationBar = () => {
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    // Clear the token or any user-related data
-    localStorage.removeItem("authToken");
-
-    // Optionally, you can also clear any other user data here
-
-    // Redirect to the login page
-    navigate("/login"); // Redirect to the login form
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -23,13 +20,13 @@ const NavigationBar = () => {
         </Link>
         <ul className="flex items-center gap-10">
           <li>
-            <Link to={"/tasks"}>Tasks</Link>
+            <Link to={"tasks"}>Tasks</Link>
           </li>
           <li>
-            <Link to={"/about"}>About</Link>
+            <Link to={"list"}>List</Link>
           </li>
           <li>
-            <Link to={"/contact"}>Contact</Link>
+            <Link to={"contact"}>Contact</Link>
           </li>
           <li>
             <button className="pt-2" onClick={handleLogout}>

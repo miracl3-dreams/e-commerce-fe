@@ -1,18 +1,22 @@
+// src/pages/Login.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../components/Button";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    if (token) navigate("/dashboard");
+    if (token) {
+      navigate("/dashboard");
+    }
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -22,38 +26,31 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/login",
-        formData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    setMessage("");
 
-      localStorage.setItem("authToken", response.data.token);
+    try {
+      await login(formData);
+      setFormData({ email: "", password: "" });
       setMessage("Login successful!");
-      setTimeout(() => navigate("/dashboard"), 1500);
+      navigate("/dashboard");
     } catch (error) {
-      const errorMsg = error.response?.data?.message || "Invalid credentials.";
-      setMessage(errorMsg);
-      console.error("Login Error:", error);
+      setMessage("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="wrapper flex justify-center items-center h-[100vh] gap-1">
+    <div className="bg-black wrapper flex justify-center items-center h-[100vh] gap-1">
       <form
-        className="flex flex-col gap-4 items-center bg-yellow-600 px-5 py-10 rounded-md w-[360px]"
+        className="flex flex-col gap-4 items-center border-2 border-white bg-slate-400 px-5 py-10 rounded-md w-[360px]"
         onSubmit={handleSubmit}
       >
-        <h1 className="font-poppins">Sign In</h1>
+        <h1 className="font-poppins p-3 font-bold">Task Management Sign In</h1>
         <div className="flex items-center gap-1 w-full">
           <FaUser className="icon" />
           <input
-            className="py-1 pl-1 w-full"
+            className="py-1 pl-1 rounded-md w-full"
             type="email"
             name="email"
             value={formData.email}
@@ -65,7 +62,7 @@ const Login = () => {
         <div className="flex items-center gap-1 w-full">
           <FaLock className="icon" />
           <input
-            className="py-1 pl-1 w-full"
+            className="py-1 pl-1 rounded-md w-full"
             type="password"
             name="password"
             value={formData.password}

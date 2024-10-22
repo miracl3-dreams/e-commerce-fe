@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button";
-import axios from "axios";
+import Button from "../components/Button"; // Make sure this component exists
+import axios from "../components/axios";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +12,7 @@ const SignUp = () => {
     password_confirmation: "",
   });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,43 +21,43 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setLoading(true);
+
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Save token in localStorage
-      localStorage.setItem("authToken", response.data.token);
-
-      // Redirect to dashboard
-      setMessage("Registration successful!");
-      setTimeout(() => navigate("/dashboard"), 1500);
+      await axios.post("/api/v1/register", formData);
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
+      });
+      setMessage("Registration successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       const errorMsg =
         error.response?.data?.message ||
         "Registration failed. Please try again.";
       setMessage(errorMsg);
       console.error("Registration Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="wrapper flex justify-center items-center h-[100vh] gap-1">
+    <div className="bg-black wrapper flex justify-center items-center h-[100vh] gap-1">
       <form
-        className="flex flex-col gap-4 items-center bg-yellow-600 px-5 py-10 rounded-md w-[360px]"
+        className="flex flex-col gap-4 items-center border-2 border-white bg-slate-400 px-5 py-10 rounded-md w-[360px]"
         onSubmit={handleSubmit}
+        autoComplete="off"
       >
-        <h1 className="font-poppins">Sign Up</h1>
+        <h1 className="font-poppins">Task Management Sign Up</h1>
+
         <div className="flex items-center gap-1 w-full">
           <FaUser className="icon" />
           <input
-            className="py-1 pl-1 w-full"
+            className="py-1 pl-1 rounded-md w-full"
             type="text"
             name="name"
             value={formData.name}
@@ -65,11 +66,12 @@ const SignUp = () => {
             required
           />
         </div>
+
         <div className="flex items-center gap-1 w-full">
           <FaUser className="icon" />
           <input
-            className="py-1 pl-1 w-full"
-            type="text"
+            className="py-1 pl-1 rounded-md w-full"
+            type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
@@ -77,10 +79,11 @@ const SignUp = () => {
             required
           />
         </div>
+
         <div className="flex items-center gap-1 w-full">
           <FaLock className="icon" />
           <input
-            className="py-1 pl-1 w-full"
+            className="py-1 pl-1 rounded-md w-full"
             type="password"
             name="password"
             value={formData.password}
@@ -89,10 +92,11 @@ const SignUp = () => {
             required
           />
         </div>
+
         <div className="flex items-center gap-1 w-full">
           <FaLock className="icon" />
           <input
-            className="py-1 pl-1 w-full"
+            className="py-1 pl-1 rounded-md w-full"
             type="password"
             name="password_confirmation"
             value={formData.password_confirmation}
@@ -101,13 +105,21 @@ const SignUp = () => {
             required
           />
         </div>
-        <Button className={"rounded-full px-6 py-1"}>Register</Button>
+
+        <Button
+          className="rounded-full px-6 py-1"
+          disabled={loading} // Disable button during loading
+        >
+          {loading ? "Registering..." : "Register"}
+        </Button>
+
         <p className="font-poppins">
           Already signed in?{" "}
-          <a className="hover:underline" href={"/login"}>
+          <a className="hover:underline" href="/login">
             Log In
           </a>
         </p>
+
         {message && <p className="mt-2 text-center">{message}</p>}
       </form>
     </div>
