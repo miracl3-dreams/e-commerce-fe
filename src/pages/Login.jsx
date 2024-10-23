@@ -1,16 +1,14 @@
-// src/pages/Login.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button";
-import { useAuth } from "../context/AuthContext";
+import Button from "../components/Button"; // Ensure this path is correct
+import axios from "../components/axios";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -29,12 +27,18 @@ const Login = () => {
     setMessage("");
 
     try {
-      await login(formData);
-      setFormData({ email: "", password: "" });
-      setMessage("Login successful!");
-      navigate("/dashboard");
+      const response = await axios.post("/api/v1/login", formData);
+
+      if (response.status === 200) {
+        const data = response.data;
+        localStorage.setItem("authToken", data.token);
+
+        setFormData({ email: "", password: "" });
+        setMessage("Login successful!");
+        navigate("/dashboard");
+      }
     } catch (error) {
-      setMessage("Login failed. Please check your credentials.");
+      setMessage("Invalid credentials.");
     } finally {
       setLoading(false);
     }

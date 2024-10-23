@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button"; // Make sure this component exists
+import Button from "../components/Button";
 import axios from "../components/axios";
 
 const SignUp = () => {
@@ -26,12 +26,14 @@ const SignUp = () => {
 
     try {
       await axios.post("/api/v1/register", formData);
+
       setFormData({
         name: "",
         email: "",
         password: "",
         password_confirmation: "",
       });
+
       setMessage("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
@@ -106,10 +108,7 @@ const SignUp = () => {
           />
         </div>
 
-        <Button
-          className="rounded-full px-6 py-1"
-          disabled={loading} // Disable button during loading
-        >
+        <Button className="rounded-full px-6 py-1" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </Button>
 
@@ -119,7 +118,6 @@ const SignUp = () => {
             Log In
           </a>
         </p>
-
         {message && <p className="mt-2 text-center">{message}</p>}
       </form>
     </div>

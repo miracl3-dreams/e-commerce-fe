@@ -1,15 +1,37 @@
 import React from "react";
-import { useAuth } from "../context/AuthContext";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
+import axios from "../components/axios";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      console.warn("No token found, redirecting to login.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.post(
+        "/api/v1/logout",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Logout successful");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("authToken");
+      navigate("/login");
+    }
   };
 
   return (
