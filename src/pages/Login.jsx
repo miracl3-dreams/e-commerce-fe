@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../components/Button"; // Ensure this path is correct
 import axios from "../components/axios";
+import { toast, Bounce } from "react-toastify";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -31,10 +32,23 @@ const Login = () => {
 
       if (response.status === 200) {
         const data = response.data;
-        localStorage.setItem("authToken", data.token);
-
+        // console.log(data);
+        localStorage.setItem("authToken", data.data.token);
+        console.log(data.data.email);
+        // console.log(data.data.password);
         setFormData({ email: "", password: "" });
-        setMessage("Login successful!");
+        // setMessage("Login successful!");
+        toast.success("Successfully Login!", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
         navigate("/dashboard");
       }
     } catch (error) {

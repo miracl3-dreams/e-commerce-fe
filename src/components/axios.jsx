@@ -2,10 +2,9 @@ import axios from "axios";
 
 const instance = axios.create({
   baseURL: "http://localhost:8000",
-  withCredentials: true, // Ensure cookies are sent with requests
+  withCredentials: true,
 });
 
-// Add a request interceptor to set the CSRF token
 instance.interceptors.request.use((config) => {
   const token = document.cookie
     .split("; ")
@@ -13,7 +12,7 @@ instance.interceptors.request.use((config) => {
     ?.split("=")[1]; // Get the CSRF token from cookies
 
   if (token) {
-    config.headers["X-XSRF-TOKEN"] = token; // Include the CSRF token in headers
+    config.headers["X-XSRF-TOKEN"] = token;
   }
   return config;
 });

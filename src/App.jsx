@@ -7,7 +7,9 @@ import List from "./pages/List";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import AuthRoute from "./routes/AuthRoute"; //
+import AuthRoute from "./routes/AuthRoute";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   useEffect(() => {
@@ -15,18 +17,21 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/sign-up" element={<SignUp />} />
+    <>
+      <ToastContainer />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/sign-up" element={<SignUp />} />
 
-      {/* Protected Dashboard Route */}
-      <Route path="/dashboard" element={<NavigationBar />}>
-        <Route index element={<AuthRoute element={Dashboard} />} />
-        <Route path="tasks" element={<AuthRoute element={Tasks} />} />
-        <Route path="list" element={<AuthRoute element={List} />} />
-        <Route path="contact" element={<AuthRoute element={Contact} />} />
-      </Route>
-    </Routes>
+        {/* Protected Dashboard Route */}
+        <Route path="/dashboard" element={<NavigationBar />}>
+          <Route index element={<AuthRoute element={Dashboard} />} />
+          <Route path="tasks" element={<AuthRoute element={Tasks} />} />
+          <Route path="list" element={<AuthRoute element={List} />} />
+          <Route path="contact" element={<AuthRoute element={Contact} />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

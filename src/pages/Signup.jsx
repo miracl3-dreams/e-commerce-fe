@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../components/Button";
 import axios from "../components/axios";
+import { toast, Bounce } from "react-toastify";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +35,19 @@ const SignUp = () => {
         password_confirmation: "",
       });
 
-      setMessage("Registration successful! Redirecting to login...");
+      toast.success("Successfully Registered!", {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+
+      // setMessage("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       const errorMsg =

@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
+import { toast, Bounce } from "react-toastify";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -83,14 +84,36 @@ const Tasks = () => {
             },
           }
         );
-        setMessage("Task updated successfully!");
+        // setMessage("Task updated successfully!");
+        toast.success("Successfully Updated!", {
+          position: "bottom-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
       } else {
         await axios.post("http://127.0.0.1:8000/api/v1/tasks", taskPayload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
-        setMessage("Task created successfully!");
+        // setMessage("Task created successfully!");
+        toast.success("Successfully Created!", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
       }
 
       setFormData({ name: "", task: "" });
