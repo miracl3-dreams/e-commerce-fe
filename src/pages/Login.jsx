@@ -34,7 +34,8 @@ const Login = () => {
         const data = response.data;
         // console.log(data);
         localStorage.setItem("authToken", data.data.token);
-        console.log(data.data.email);
+        localStorage.setItem("userName", data.data.user.name);
+        // console.log(data.data.email);
         // console.log(data.data.password);
         setFormData({ email: "", password: "" });
         // setMessage("Login successful!");

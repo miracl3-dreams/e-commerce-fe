@@ -14,6 +14,8 @@ const Tasks = () => {
     task: "",
   });
   const [currentTask, setCurrentTask] = useState(null);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -137,19 +139,44 @@ const Tasks = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTask = async (taskId) => {
+  const handleDeleteTask = async () => {
+    if (!taskToDelete) return;
+
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/v1/tasks/${taskId}`, {
+      await axios.delete(`http://127.0.0.1:8000/api/v1/tasks/${taskToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
       setMessage("Task deleted successfully!");
+      setTaskToDelete(null);
+      setIsDeleteModalOpen(false);
       fetchTasks();
+      toast.success("Task deleted successfully!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } catch (error) {
       setMessage("Error deleting task.");
       console.error("Error deleting task:", error);
     }
+  };
+
+  const openDeleteModal = (taskId) => {
+    setTaskToDelete(taskId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setTaskToDelete(null);
+    setIsDeleteModalOpen(false);
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -252,6 +279,28 @@ const Tasks = () => {
             </div>
           </Modal>
 
+          <Modal isOpen={isDeleteModalOpen} className="bg-slate-300">
+            <div className="flex flex-col items-center">
+              <h2 className="text-lg font-semibold mb-4">
+                Do you want to delete this task?
+              </h2>
+              <div className="flex gap-3">
+                <Button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={handleDeleteTask}
+                >
+                  Yes, Delete
+                </Button>
+                <Button
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                  onClick={closeDeleteModal}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Modal>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
             {filteredTasks.map((task) => (
               <Cards key={task.id}>
@@ -268,7 +317,7 @@ const Tasks = () => {
                   </Button>
                   <Button
                     className="bg-red-500 text-white px-4 py-2 rounded-md"
-                    onClick={() => handleDeleteTask(task.id)}
+                    onClick={() => openDeleteModal(task.id)}
                   >
                     Delete
                   </Button>
