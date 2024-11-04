@@ -121,7 +121,11 @@ const SignUp = () => {
           />
         </div>
 
-        <Button className="rounded-full px-6 py-1" disabled={loading}>
+        <Button
+          className="rounded-full px-6 py-1"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading ? "Registering..." : "Register"}
         </Button>
 
