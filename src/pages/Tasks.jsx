@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cards from "../components/Cards";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
@@ -86,7 +86,6 @@ const Tasks = () => {
             },
           }
         );
-        // setMessage("Task updated successfully!");
         toast.success("Successfully Updated!", {
           position: "bottom-right",
           autoClose: 1500,
@@ -104,9 +103,8 @@ const Tasks = () => {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
-        // setMessage("Task created successfully!");
         toast.success("Successfully Created!", {
-          position: "top-right",
+          position: "bottom-right",
           autoClose: 1500,
           hideProgressBar: false,
           closeOnClick: true,
@@ -179,6 +177,7 @@ const Tasks = () => {
     setIsDeleteModalOpen(false);
   };
 
+  // Remove filterTasks because it will be filtered out in backend
   const filteredTasks = tasks.filter((task) => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const matchesNameOrTask =
@@ -200,12 +199,20 @@ const Tasks = () => {
       <div className="flex flex-col items-center gap-5 w-full">
         <div className="bg-slate-300 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
           <div className="flex justify-between w-full">
-            <Button
-              className="bg-green-500 px-4 py-2 rounded-md"
-              onClick={openModalForCreate}
-            >
-              Create
-            </Button>
+            <div className="flex items-center gap-x-2">
+              <Button
+                className="bg-green-500 px-4 py-2 rounded-md"
+                onClick={openModalForCreate}
+              >
+                Create
+              </Button>
+              <Button
+                className="bg-yellow-500 px-4 py-2 rounded-md"
+                // onClick={openModalForArchive}
+              >
+                <Link to={"archive"}>Archive</Link>
+              </Button>
+            </div>
             <input
               className="px-4 py-2 rounded-md"
               type="text"
@@ -229,20 +236,22 @@ const Tasks = () => {
                 <IoMdClose />
               </button>
             </div>
-            <div className="flex flex-col items-start gap-2 pt-5">
+            <div className="flex flex-col items-start gap-2 pt-5 w-[360px]">
               <input
-                className="pl-1 py-1 text-sm rounded-md"
+                className="pl-1 py-1 text-sm rounded-md w-full"
                 name="name"
-                placeholder="Full name..."
+                placeholder="Task Title..."
                 value={formData.name}
                 onChange={handleInputChange}
               />
-              <input
-                className="pl-1 py-1 text-sm rounded-md"
+              <textarea
+                className="pl-1 py-1 text-sm rounded-md w-full"
                 name="task"
-                placeholder="Task..."
+                placeholder="Task Description..."
                 value={formData.task}
                 onChange={handleInputChange}
+                rows={5}
+                cols={5}
               />
 
               {currentTask && (
@@ -304,8 +313,12 @@ const Tasks = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
             {filteredTasks.map((task) => (
               <Cards key={task.id}>
-                <h1 className="text-lg font-semibold">Name: {task.name}</h1>
-                <h1 className="text-lg font-semibold">Task: {task.task}</h1>
+                <h1 className="text-lg font-semibold">
+                  Task Title: {task.name}
+                </h1>
+                <h1 className="text-lg font-semibold">
+                  Task Description: {task.task}
+                </h1>
                 <h1 className="text-lg font-semibold">Status: {task.status}</h1>
 
                 <div className="flex gap-3 mt-4">
