@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
 import axios from "../components/axios";
+import { toast, Bounce } from "react-toastify";
 
 const NavigationBar = () => {
   const [userName, setUserName] = useState("");
@@ -33,7 +34,18 @@ const NavigationBar = () => {
           },
         }
       );
-      console.log("Logout successful");
+      // console.log("Logout successful");
+      toast.success("Successfully Logout!", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -49,7 +61,7 @@ const NavigationBar = () => {
         <Link to={"/dashboard"} className="text-3xl font-bold text-black">
           Task Management
         </Link>
-        <ul className="flex items-center gap-10">
+        <ul className="flex items-center gap-8">
           <li>
             <Link to={"tasks"}>Tasks</Link>
           </li>
@@ -60,7 +72,7 @@ const NavigationBar = () => {
             <Link to={"contact"}>Contact</Link>
           </li>
           <li className="flex items-center gap-10">
-            {userName && <span>Welcome, {userName}</span>}{" "}
+            {userName && <span>{userName}</span>}{" "}
             <button className="pt-2" onClick={handleLogout}>
               <LuLogOut />
             </button>
