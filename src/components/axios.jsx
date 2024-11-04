@@ -9,7 +9,7 @@ instance.interceptors.request.use((config) => {
   const token = document.cookie
     .split("; ")
     .find((row) => row.startsWith("XSRF-TOKEN="))
-    ?.split("=")[1]; // Get the CSRF token from cookies
+    ?.split("=")[1];
 
   if (token) {
     config.headers["X-XSRF-TOKEN"] = token;

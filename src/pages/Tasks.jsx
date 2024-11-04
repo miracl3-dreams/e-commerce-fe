@@ -13,6 +13,9 @@ const Tasks = () => {
     name: "",
     task: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [tasksPerPage] = useState(3);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -27,21 +30,25 @@ const Tasks = () => {
     if (!token) {
       navigate("/login");
     } else {
-      fetchTasks();
+      fetchTasks(currentPage);
     }
-  }, [navigate]);
+  }, [navigate, currentPage]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/v1/tasks", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/v1/tasks?page=${page}&per_page=${tasksPerPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
 
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
+        setTotalPages(response.data.meta.last_page);
       } else {
         setTasks([]);
         setMessage("No tasks found.");
@@ -66,6 +73,12 @@ const Tasks = () => {
         ...prevData,
         [name]: value,
       }));
+    }
+  };
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -177,27 +190,12 @@ const Tasks = () => {
     setIsDeleteModalOpen(false);
   };
 
-  // Remove filterTasks because it will be filtered out in backend
-  const filteredTasks = tasks.filter((task) => {
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const matchesNameOrTask =
-      task.name.toLowerCase().includes(lowerCaseQuery) ||
-      task.task.toLowerCase().includes(lowerCaseQuery);
-    const matchesStatus =
-      (searchQuery.includes("completed:") && task.status) ||
-      (searchQuery.includes("incomplete:") && !task.status) ||
-      (!searchQuery.includes("completed:") &&
-        !searchQuery.includes("incomplete:"));
-
-    return matchesNameOrTask && matchesStatus;
-  });
-
   return (
-    <div className="bg-slate-700 relative flex flex-col items-center p-6 h-screen w-full">
-      <h1 className="font-poppins font-bold text-3xl text-white py-8">Tasks</h1>
+    <div className="bg-white relative flex flex-col items-center p-6 h-screen w-full">
+      <h1 className="font-poppins font-bold text-3xl text-black py-8">Tasks</h1>
 
       <div className="flex flex-col items-center gap-5 w-full">
-        <div className="bg-slate-300 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
+        <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
           <div className="flex justify-between w-full">
             <div className="flex items-center gap-x-2">
               <Button
@@ -216,7 +214,7 @@ const Tasks = () => {
             <input
               className="px-4 py-2 rounded-md"
               type="text"
-              placeholder="Search task name or what task"
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -311,8 +309,8 @@ const Tasks = () => {
           </Modal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
-            {filteredTasks.map((task) => (
-              <Cards key={task.id}>
+            {tasks.map((task) => (
+              <Cards className={"bg-white"} key={task.id}>
                 <h1 className="text-lg font-semibold">
                   Task Title: {task.name}
                 </h1>
@@ -321,7 +319,7 @@ const Tasks = () => {
                 </h1>
                 <h1 className="text-lg font-semibold">Status: {task.status}</h1>
 
-                <div className="flex gap-3 mt-4">
+                <div className="flex gap-3 mt-4 justify-center">
                   <Button
                     className="bg-blue-500 text-white px-4 py-2 rounded-md"
                     onClick={() => openModalForUpdate(task)}
@@ -337,6 +335,26 @@ const Tasks = () => {
                 </div>
               </Cards>
             ))}
+          </div>
+
+          <div className="z-auto flex self-end mt-4">
+            <Button
+              className="bg-black w-20 rounded-md"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="mx-2">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              className="bg-black w-20 rounded-md"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
           </div>
         </div>
       </div>

@@ -46,8 +46,6 @@ const SignUp = () => {
         theme: "light",
         transition: Bounce,
       });
-
-      // setMessage("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       const errorMsg =

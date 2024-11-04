@@ -34,7 +34,6 @@ const NavigationBar = () => {
           },
         }
       );
-      // console.log("Logout successful");
       toast.success("Successfully Logout!", {
         position: "top-right",
         autoClose: 1500,
@@ -57,8 +56,8 @@ const NavigationBar = () => {
 
   return (
     <div>
-      <nav className="bg-slate-400 flex justify-between items-center flex-row px-5 py-5">
-        <Link to={"/dashboard"} className="text-3xl font-bold text-black">
+      <nav className="bg-[#D72323] flex justify-between items-center flex-row px-5 py-5 text-white">
+        <Link to={"/dashboard"} className="text-3xl font-bold text-white">
           Task Management
         </Link>
         <ul className="flex items-center gap-8">
@@ -71,11 +70,15 @@ const NavigationBar = () => {
           <li>
             <Link to={"contact"}>Contact</Link>
           </li>
-          <li className="flex items-center gap-10">
-            {userName && <span>{userName}</span>}{" "}
-            <button className="pt-2" onClick={handleLogout}>
-              <LuLogOut />
-            </button>
+          <li className="flex items-center gap-4">
+            {userName && (
+              <span className="flex items-center">
+                {userName}{" "}
+                <button className="ml-2 pt-2" onClick={handleLogout}>
+                  <LuLogOut />
+                </button>
+              </span>
+            )}
           </li>
         </ul>
       </nav>
