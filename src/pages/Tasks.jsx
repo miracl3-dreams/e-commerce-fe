@@ -12,6 +12,7 @@ const Tasks = () => {
   const [formData, setFormData] = useState({
     name: "",
     task: "",
+    status: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -48,7 +49,7 @@ const Tasks = () => {
 
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
-        setTotalPages(response.data.meta.last_page);
+        setTotalPages(response.data.last_page);
       } else {
         setTasks([]);
         setMessage("No tasks found.");
@@ -79,6 +80,7 @@ const Tasks = () => {
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
+      fetchTasks(page, searchQuery); // Changes
     }
   };
 
@@ -131,7 +133,7 @@ const Tasks = () => {
 
       setFormData({ name: "", task: "" });
       setIsModalOpen(false);
-      fetchTasks();
+      fetchTasks(currentPage, searchQuery); // Changes
     } catch (error) {
       setMessage("Error saving task.");
       console.error("Error saving task:", error);
@@ -162,7 +164,7 @@ const Tasks = () => {
       setMessage("Task deleted successfully!");
       setTaskToDelete(null);
       setIsDeleteModalOpen(false);
-      fetchTasks();
+      fetchTasks(currentPage, searchQuery);
       toast.success("Task deleted successfully!", {
         position: "bottom-right",
         autoClose: 1500,
@@ -188,6 +190,11 @@ const Tasks = () => {
   const closeDeleteModal = () => {
     setTaskToDelete(null);
     setIsDeleteModalOpen(false);
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+    fetchTasks(currentPage, e.target.value); // Fetch tasks with the current query
   };
 
   return (
@@ -216,7 +223,8 @@ const Tasks = () => {
               type="text"
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              // onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Use handleSearch here
             />
           </div>
 
@@ -338,23 +346,25 @@ const Tasks = () => {
           </div>
 
           <div className="z-auto flex self-end mt-4">
-            <Button
-              className="bg-black w-20 rounded-md"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span className="mx-2">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              className="bg-black w-20 rounded-md"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
+            <div>
+              <Button
+                className="bg-black w-20 rounded-md"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="mx-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                className="bg-black w-20 rounded-md"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>

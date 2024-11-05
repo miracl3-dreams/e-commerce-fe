@@ -60,12 +60,13 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-black wrapper flex justify-center items-center h-[100vh] gap-1">
+    <div className="bg-white wrapper flex flex-col justify-center items-center h-[100vh] gap-5">
+      <h1 className="font-poppins text-2xl p-3 font-bold">Task Management</h1>
       <form
-        className="flex flex-col gap-4 items-center border-2 border-white bg-slate-400 px-5 py-10 rounded-md w-[360px]"
+        className="flex flex-col gap-4 items-center border-2 border-white bg-[#D72323] px-5 py-10 rounded-md w-[360px]"
         onSubmit={handleSubmit}
       >
-        <h1 className="font-poppins p-3 font-bold">Task Management Sign In</h1>
+        <h1 className="font-poppins p-3 font-bold">Sign In</h1>
         <div className="flex items-center gap-1 w-full">
           <FaUser className="icon" />
           <input

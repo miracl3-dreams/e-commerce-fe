@@ -59,13 +59,14 @@ const SignUp = () => {
   };
 
   return (
-    <div className="bg-black wrapper flex justify-center items-center h-[100vh] gap-1">
+    <div className="bg-white wrapper flex flex-col justify-center items-center h-[100vh] gap-5">
+      <h1 className="font-poppins font-bold text-2xl">Task Management</h1>
       <form
-        className="flex flex-col gap-4 items-center border-2 border-white bg-slate-400 px-5 py-10 rounded-md w-[360px]"
+        className="flex flex-col gap-4 items-center border-2 border-white bg-[#D72323] px-8 py-10 rounded-md w-[360px]"
         onSubmit={handleSubmit}
         autoComplete="off"
       >
-        <h1 className="font-poppins">Task Management Sign Up</h1>
+        <h1 className="font-poppins">Sign Up</h1>
 
         <div className="flex items-center gap-1 w-full">
           <FaUser className="icon" />
@@ -128,7 +129,7 @@ const SignUp = () => {
         </Button>
 
         <p className="font-poppins">
-          Already signed in?{" "}
+          Already have an account?{" "}
           <a className="hover:underline" href="/login">
             Log In
           </a>
