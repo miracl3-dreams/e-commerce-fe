@@ -8,7 +8,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import AuthRoute from "./routes/AuthRoute";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Archive from "./pages/Archive";
 

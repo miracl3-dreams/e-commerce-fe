@@ -203,7 +203,7 @@ const Tasks = () => {
 
       <div className="flex flex-col items-center gap-5 w-full">
         <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
-          <div className="flex justify-between w-full">
+          <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
             <div className="flex items-center gap-x-2">
               <Button
                 className="bg-green-500 px-4 py-2 rounded-md"
@@ -345,7 +345,7 @@ const Tasks = () => {
             ))}
           </div>
 
-          <div className="z-auto flex self-end mt-4">
+          <div className="flex self-end mt-4">
             <div>
               <Button
                 className="bg-black w-20 rounded-md"

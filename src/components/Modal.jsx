@@ -5,7 +5,7 @@ const Modal = ({ isOpen, children, className }) => {
     <div
       className={`${
         isOpen ? "flex" : "hidden"
-      } fixed top-0 left-0 w-full h-full justify-center items-center bg-black/50`}
+      } z-10 fixed top-0 left-0 w-full h-full justify-center items-center bg-black/50`}
     >
       <div className={`${className} border-2 border-black p-5 rounded-md`}>
         {children}
