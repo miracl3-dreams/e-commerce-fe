@@ -12,11 +12,10 @@ const Tasks = () => {
   const [formData, setFormData] = useState({
     name: "",
     task: "",
-    status: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [tasksPerPage] = useState(3);
+  const [tasksPerPage] = useState(5);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -49,7 +48,8 @@ const Tasks = () => {
 
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
-        setTotalPages(response.data.last_page);
+        setCurrentPage(response.data.meta.current_page);
+        setTotalPages(response.data.meta.last_page);
       } else {
         setTasks([]);
         setMessage("No tasks found.");
@@ -59,6 +59,18 @@ const Tasks = () => {
       console.error("Error fetching tasks:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
     }
   };
 
@@ -77,12 +89,13 @@ const Tasks = () => {
     }
   };
 
-  const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
-      setCurrentPage(page);
-      fetchTasks(page, searchQuery); // Changes
-    }
-  };
+  // CHANGES
+  // const handlePageChange = (page) => {
+  //   if (page > 0 && page <= totalPages) {
+  //     setCurrentPage(page);
+  //     fetchTasks(page);
+  //   }
+  // };
 
   const handleCreateOrUpdateTask = async () => {
     try {
@@ -192,13 +205,13 @@ const Tasks = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    fetchTasks(currentPage, e.target.value); // Fetch tasks with the current query
-  };
+  // const handleSearch = (e) => {
+  //   setSearchQuery(e.target.value);
+  //   fetchTasks(currentPage, e.target.value);
+  // };
 
   return (
-    <div className="bg-white relative flex flex-col items-center p-6 h-screen w-full">
+    <div className="bg-white relative flex flex-col items-center h-full w-full">
       <h1 className="font-poppins font-bold text-3xl text-black py-8">Tasks</h1>
 
       <div className="flex flex-col items-center gap-5 w-full">
@@ -223,8 +236,7 @@ const Tasks = () => {
               type="text"
               placeholder="Search..."
               value={searchQuery}
-              // onChange={(e) => setSearchQuery(e.target.value)}
-              onChange={handleSearch} // Use handleSearch here
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
@@ -345,25 +357,27 @@ const Tasks = () => {
             ))}
           </div>
 
-          <div className="flex self-end mt-4">
-            <div>
-              <Button
-                className="bg-black w-20 rounded-md"
-                onClick={() => handlePageChange(currentPage - 1)}
+          <div className="flex self-center lg:self-end mt-4">
+            <div className="flex gap-2">
+              <button
+                className="bg-black text-white px-3 w-30 rounded-md"
+                onClick={handlePreviousPage}
                 disabled={currentPage === 1}
               >
                 Previous
-              </Button>
-              <span className="mx-2">
+              </button>
+
+              <span>
                 Page {currentPage} of {totalPages}
               </span>
-              <Button
-                className="bg-black w-20 rounded-md"
-                onClick={() => handlePageChange(currentPage + 1)}
+
+              <button
+                className="bg-black text-white px-3 w-30 rounded-md"
+                onClick={handleNextPage}
                 disabled={currentPage === totalPages}
               >
                 Next
-              </Button>
+              </button>
             </div>
           </div>
         </div>

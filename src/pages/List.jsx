@@ -28,7 +28,7 @@ const List = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="bg-slate-700 relative flex flex-col items-center p-6 h-screen w-full">
+    <div className="bg-white relative flex flex-col items-center p-6 h-screen w-full">
       <h1 className="font-poppins font-bold text-3xl text-white py-8">Posts</h1>
       {posts.length > 0 ? (
         <ul className="bg-slate-500 w-full pt-4">

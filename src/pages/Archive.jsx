@@ -6,7 +6,7 @@ const Archive = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [trashedTasks, setTrashedTasks] = useState([]);
-  const trashedTasksPerPage = 5; // Define as a constant for clarity
+  const trashedTasksPerPage = 5;
 
   useEffect(() => {
     const fetchTrashedTasks = async (page = 1) => {

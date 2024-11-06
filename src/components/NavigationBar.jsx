@@ -78,7 +78,7 @@ const NavigationBar = () => {
         <Link to={"/dashboard"} className="text-3xl font-bold text-white">
           Task Management
         </Link>
-        <ul className="hidden lg:flex items-center gap-8">
+        <ul className="hidden lg:flex items-center gap-8 font-bold">
           <li>
             <Link to={"tasks"}>Tasks</Link>
           </li>
