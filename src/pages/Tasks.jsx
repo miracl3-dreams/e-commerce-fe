@@ -15,11 +15,12 @@ const Tasks = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [tasksPerPage] = useState(5);
+  const [tasksPerPage] = useState(3);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,9 +63,36 @@ const Tasks = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    fetchTasks(currentPage, e.target.value);
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/v1/tasks-search",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          params: {
+            query: searchQuery,
+            status:
+              status.toLowerCase() === "completed" ? "completed" : "incomplete",
+          },
+        }
+      );
+      setTasks(response.data.data);
+      toast.success("Task search successfully!", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } catch (error) {
+      console.error("Error searching tasks:", error);
+    }
   };
 
   const handleNextPage = () => {
@@ -143,7 +171,7 @@ const Tasks = () => {
 
       setFormData({ name: "", task: "" });
       setIsModalOpen(false);
-      fetchTasks(currentPage, searchQuery); // Changes
+      fetchTasks(currentPage, searchQuery);
     } catch (error) {
       setMessage("Error saving task.");
       console.error("Error saving task:", error);
@@ -225,8 +253,8 @@ const Tasks = () => {
                 className="px-4 py-2 rounded-md"
                 type="text"
                 placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
               />
               <Button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
