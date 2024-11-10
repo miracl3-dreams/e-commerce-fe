@@ -119,6 +119,12 @@ const Archive = () => {
                     >
                       Restore
                     </button>
+                    {/* <button
+                      onClick={() => forceDeleteTask(task.id)}
+                      className="bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                      Force Delete
+                    </button> */}
                   </td>
                 </tr>
               ))}

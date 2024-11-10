@@ -34,11 +34,11 @@ const Tasks = () => {
     }
   }, [navigate, currentPage]);
 
-  const fetchTasks = async (page = 1) => {
+  const fetchTasks = async (page = 1, searchQuery = "", status = "") => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/v1/tasks?page=${page}&per_page=${tasksPerPage}`,
+        ` http://127.0.0.1:8000/api/v1/tasks?page=${page}&per_page=${tasksPerPage}&query=${searchQuery}&status=${status}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -60,6 +60,11 @@ const Tasks = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+    fetchTasks(currentPage, e.target.value);
   };
 
   const handleNextPage = () => {
@@ -88,14 +93,6 @@ const Tasks = () => {
       }));
     }
   };
-
-  // CHANGES
-  // const handlePageChange = (page) => {
-  //   if (page > 0 && page <= totalPages) {
-  //     setCurrentPage(page);
-  //     fetchTasks(page);
-  //   }
-  // };
 
   const handleCreateOrUpdateTask = async () => {
     try {
@@ -205,11 +202,6 @@ const Tasks = () => {
     setIsDeleteModalOpen(false);
   };
 
-  // const handleSearch = (e) => {
-  //   setSearchQuery(e.target.value);
-  //   fetchTasks(currentPage, e.target.value);
-  // };
-
   return (
     <div className="bg-white relative flex flex-col items-center h-full w-full">
       <h1 className="font-poppins font-bold text-3xl text-black py-8">Tasks</h1>
@@ -224,20 +216,25 @@ const Tasks = () => {
               >
                 Create
               </Button>
-              <Button
-                className="bg-yellow-500 px-4 py-2 rounded-md"
-                // onClick={openModalForArchive}
-              >
+              <Button className="bg-yellow-500 px-4 py-2 rounded-md">
                 <Link to={"archive"}>Archive</Link>
               </Button>
             </div>
-            <input
-              className="px-4 py-2 rounded-md"
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                className="px-4 py-2 rounded-md"
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
+            </div>
           </div>
 
           <Modal isOpen={isModalOpen} className="bg-slate-300">
