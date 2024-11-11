@@ -402,7 +402,7 @@ const Tasks = () => {
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
                 >
-                  Prev
+                  Previous
                 </Button>
 
                 {/* Page Number Buttons */}

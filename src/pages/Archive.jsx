@@ -169,21 +169,28 @@ const Archive = () => {
         Archived Tasks
       </h1>
 
+      {/* Only show buttons if at least one task is selected */}
       <div className="flex justify-center items-center mb-4 w-full">
-        <button
-          onClick={restoreSelectedTasks}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
-          disabled={selectedTasks.length === 0}
-        >
-          Restore Selected
-        </button>
-        <button
-          onClick={forceDeleteSelectedTasks}
-          className="bg-red-500 text-white px-4 py-2 rounded-md mr-4"
-          disabled={selectedTasks.length === 0}
-        >
-          Delete Selected
-        </button>
+        {selectedTasks.length > 0 && (
+          <>
+            <button
+              onClick={restoreSelectedTasks}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+              disabled={selectedTasks.length === 0}
+            >
+              Restore Selected+
+            </button>
+            <button
+              onClick={forceDeleteSelectedTasks}
+              className="bg-red-500 text-white px-4 py-2 rounded-md mr-4"
+              disabled={selectedTasks.length === 0}
+            >
+              Delete Selected
+            </button>
+          </>
+        )}
+
+        {/* Search bar */}
         <input
           type="text"
           value={searchTerm}
@@ -199,6 +206,7 @@ const Archive = () => {
         </button>
       </div>
 
+      {/* Task list */}
       {trashedTasks.length > 0 ? (
         <>
           <div className="overflow-x-auto rounded-md">
@@ -253,13 +261,13 @@ const Archive = () => {
                     <td className="border border-gray-300 px-4 py-2">
                       <button
                         onClick={() => restoreTask(task.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
                       >
                         Restore
                       </button>
                       <button
                         onClick={() => forceDeleteTask(task.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
+                        className="bg-red-500 text-white px-4 py-2 rounded-md"
                       >
                         Force Delete
                       </button>
@@ -270,14 +278,16 @@ const Archive = () => {
             </table>
           </div>
 
-          <div className="flex justify-center gap-2 mt-4 w-full">
+          {/* Pagination */}
+          <div className="flex justify-center mt-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              className="px-4 py-2 mx-2 bg-gray-300 rounded-md"
               disabled={currentPage === 1}
             >
               Previous
             </button>
+
             {Array.from({ length: totalPages }, (_, index) => index + 1)
               .slice(
                 Math.max(0, currentPage - 3),
@@ -296,9 +306,10 @@ const Archive = () => {
                   {page}
                 </button>
               ))}
+
             <button
-              className="bg-black text-white px-4 py-2 rounded-md mx-1"
               onClick={() => handlePageChange(currentPage + 1)}
+              className="px-4 py-2 mx-2 bg-gray-300 rounded-md"
               disabled={currentPage === totalPages}
             >
               Next
@@ -306,7 +317,9 @@ const Archive = () => {
           </div>
         </>
       ) : (
-        <p>No trashed tasks found.</p>
+        <h1 className="text-5xl text-center text-gray-500 mt-4">
+          No archived tasks found
+        </h1>
       )}
     </div>
   );
