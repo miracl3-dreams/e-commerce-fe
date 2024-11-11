@@ -19,7 +19,7 @@ const Tasks = () => {
   const [currentTask, setCurrentTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [searchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -72,11 +72,9 @@ const Tasks = () => {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           params: {
-            query: searchQuery,
-            // name:
-            // name.toLowerCase(string),
-            status:
-              status.toLowerCase() === "completed" ? "completed" : "incomplete",
+            search: searchQuery,
+            status: status,
+            page: currentPage,
           },
         }
       );

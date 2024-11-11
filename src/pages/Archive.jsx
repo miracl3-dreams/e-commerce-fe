@@ -8,6 +8,7 @@ const Archive = () => {
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter] = useState("");
   const trashedTasksPerPage = 5;
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const Archive = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `http://localhost:8000/api/v1/task/trashed/search?query=${searchTerm}&page=1&per_page=${trashedTasksPerPage}`,
+        `http://localhost:8000/api/v1/trashed-search?query=${searchTerm}&status=${statusFilter}&page=1&per_page=${trashedTasksPerPage}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,7 +51,7 @@ const Archive = () => {
       const data = response.data;
       setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
       setTotalPages(data.data.last_page);
-      setCurrentPage(1);
+      setCurrentPage(data.data.current_page);
     } catch (error) {
       console.error("Error searching tasks:", error);
     }
@@ -282,7 +283,7 @@ const Archive = () => {
           <div className="flex justify-center mt-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className="px-4 py-2 mx-2 bg-gray-300 rounded-md"
+              className="px-4 py-2 mx-2 bg-black rounded-md text-white"
               disabled={currentPage === 1}
             >
               Previous
@@ -299,7 +300,7 @@ const Archive = () => {
                   className={`px-4 py-2 rounded-md mx-1 ${
                     currentPage === page
                       ? "bg-black text-white"
-                      : "bg-gray-300 text-black"
+                      : "bg-black text-white"
                   }`}
                   onClick={() => handlePageChange(page)}
                 >
@@ -309,7 +310,7 @@ const Archive = () => {
 
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className="px-4 py-2 mx-2 bg-gray-300 rounded-md"
+              className="px-4 py-2 mx-2 bg-black rounded-md text-white"
               disabled={currentPage === totalPages}
             >
               Next
