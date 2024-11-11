@@ -19,7 +19,7 @@ const Tasks = () => {
   const [currentTask, setCurrentTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
