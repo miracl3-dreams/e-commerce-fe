@@ -270,7 +270,7 @@ const Tasks = () => {
 
           {/* Display Message if No Tasks Found */}
           {tasks.length === 0 && !loading && (
-            <p className="self-center text-center text-red-500 font-semibold">
+            <p className="self-center text-center text-5xl text-red-500 font-semibold">
               {message || "No tasks found."}
             </p>
           )}
