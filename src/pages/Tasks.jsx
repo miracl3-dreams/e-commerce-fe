@@ -73,6 +73,8 @@ const Tasks = () => {
           },
           params: {
             query: searchQuery,
+            // name:
+            // name.toLowerCase(string),
             status:
               status.toLowerCase() === "completed" ? "completed" : "incomplete",
           },
@@ -236,6 +238,7 @@ const Tasks = () => {
 
       <div className="flex flex-col items-center gap-5 w-full">
         <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
+          {/* // Controls for Creating and Searching Tasks // */}
           <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
             <div className="flex items-center gap-x-2">
               <Button
@@ -264,6 +267,13 @@ const Tasks = () => {
               </Button>
             </div>
           </div>
+
+          {/* Display Message if No Tasks Found */}
+          {tasks.length === 0 && !loading && (
+            <p className="self-center text-center text-red-500 font-semibold">
+              {message || "No tasks found."}
+            </p>
+          )}
 
           <Modal isOpen={isModalOpen} className="bg-slate-300">
             <div className="flex justify-between items-center">
@@ -330,7 +340,6 @@ const Tasks = () => {
               </Button>
             </div>
           </Modal>
-
           <Modal isOpen={isDeleteModalOpen} className="bg-slate-300">
             <div className="flex flex-col items-center">
               <h2 className="text-lg font-semibold mb-4">
@@ -352,7 +361,6 @@ const Tasks = () => {
               </div>
             </div>
           </Modal>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
             {tasks.map((task) => (
               <Cards className={"bg-white"} key={task.id}>
@@ -381,49 +389,55 @@ const Tasks = () => {
               </Cards>
             ))}
           </div>
-
-          <div className="flex self-center lg:self-end mt-4">
-            <div className="flex gap-2 mt-6">
-              <Button
-                className={`px-3 py-2 rounded-md ${
-                  currentPage === 1 ? "bg-gray-300" : "bg-black text-white"
-                }`}
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-              >
-                Prev
-              </Button>
-
-              {Array.from({ length: totalPages }, (_, index) => (
+          {tasks.length > 0 && totalPages > 1 && !loading && (
+            <div className="flex self-center lg:justify-end mt-4">
+              <div className="flex gap-2 mt-6">
+                {/* Previous Button */}
                 <Button
-                  key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`px-3 py-2 rounded-md ${
-                    currentPage === index + 1
-                      ? "bg-black text-white"
-                      : "bg-black text-white"
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed"
+                      : "bg-blue-500 text-white"
                   }`}
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
                 >
-                  {index + 1}
+                  Prev
                 </Button>
-              ))}
-              {/* <span>
-                Page {currentPage} of {totalPages}
-              </span> */}
 
-              <Button
-                className={`px-3 py-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "bg-gray-300"
-                    : "bg-black text-white"
-                }`}
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
+                {/* Page Number Buttons */}
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const pageNumber = index + 1;
+                  return (
+                    <Button
+                      key={pageNumber}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`px-3 py-2 rounded-md ${
+                        currentPage === pageNumber
+                          ? "bg-black text-white"
+                          : "bg-black text-white"
+                      }`}
+                    >
+                      {pageNumber}
+                    </Button>
+                  );
+                })}
+
+                {/* Next Button */}
+                <Button
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
+                      : "bg-blue-500 text-white"
+                  }`}
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

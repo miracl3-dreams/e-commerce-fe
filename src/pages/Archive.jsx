@@ -200,115 +200,114 @@ const Archive = () => {
       </div>
 
       {trashedTasks.length > 0 ? (
-        <div className="overflow-x-auto rounded-md">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-[#D72323]">
-                <th className="border border-gray-300 px-4 py-2">
-                  <input
-                    type="checkbox"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedTasks(trashedTasks.map((task) => task.id));
-                      } else {
-                        setSelectedTasks([]);
-                      }
-                    }}
-                  />
-                </th>
-                <th className="border border-gray-300 px-4 py-2">Task ID</th>
-                <th className="border border-gray-300 px-4 py-2">Task Title</th>
-                <th className="border border-gray-300 px-4 py-2">
-                  Task Description
-                </th>
-                <th className="border border-gray-300 px-4 py-2">Status</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trashedTasks.map((task) => (
-                <tr key={task.id}>
-                  <td className="border border-gray-300 px-4 py-2">
+        <>
+          <div className="overflow-x-auto rounded-md">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-[#D72323]">
+                  <th className="border border-gray-300 px-4 py-2">
                     <input
                       type="checkbox"
-                      checked={selectedTasks.includes(task.id)}
-                      onChange={() => handleCheckboxChange(task.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTasks(trashedTasks.map((task) => task.id));
+                        } else {
+                          setSelectedTasks([]);
+                        }
+                      }}
                     />
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {task.id}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {task.name}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {task.task}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {task.status}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => restoreTask(task.id)}
-                      className="bg-green-500 text-white px-3 py-1 rounded mr-2"
-                    >
-                      Restore
-                    </button>
-                    <button
-                      onClick={() => forceDeleteTask(task.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      Force Delete
-                    </button>
-                  </td>
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">Task ID</th>
+                  <th className="border border-gray-300 px-4 py-2">
+                    Task Title
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">
+                    Task Description
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">Status</th>
+                  <th className="border border-gray-300 px-4 py-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <h1 className="flex justify-center items-center">
-          No trashed tasks found.
-        </h1>
-      )}
+              </thead>
+              <tbody>
+                {trashedTasks.map((task) => (
+                  <tr key={task.id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedTasks.includes(task.id)}
+                        onChange={() => handleCheckboxChange(task.id)}
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {task.id}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {task.name}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {task.task}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {task.status}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <button
+                        onClick={() => restoreTask(task.id)}
+                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                      >
+                        Restore
+                      </button>
+                      <button
+                        onClick={() => forceDeleteTask(task.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
+                        Force Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <div className="z-auto flex self-center mt-4">
-        <button
-          className="bg-black text-white px-4 py-2 rounded-md mx-1"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        {Array.from({ length: totalPages }, (_, index) => index + 1)
-          .slice(
-            Math.max(0, currentPage - 3),
-            Math.min(totalPages, currentPage + 2)
-          )
-          .map((page) => (
+          <div className="flex justify-center gap-2 mt-4 w-full">
             <button
-              key={page}
-              className={`px-4 py-2 rounded-md mx-1 ${
-                currentPage === page
-                  ? "bg-black text-white"
-                  : "bg-gray-300 text-black"
-              }`}
-              onClick={() => handlePageChange(page)}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              disabled={currentPage === 1}
             >
-              {page}
+              Previous
             </button>
-          ))}
-        {/* <span className="mx-2">
-          Page {currentPage} of {totalPages}
-        </span> */}
-        <button
-          className="bg-black text-white px-4 py-2 rounded-md mx-1"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+            {Array.from({ length: totalPages }, (_, index) => index + 1)
+              .slice(
+                Math.max(0, currentPage - 3),
+                Math.min(totalPages, currentPage + 2)
+              )
+              .map((page) => (
+                <button
+                  key={page}
+                  className={`px-4 py-2 rounded-md mx-1 ${
+                    currentPage === page
+                      ? "bg-black text-white"
+                      : "bg-gray-300 text-black"
+                  }`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              ))}
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md mx-1"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      ) : (
+        <p>No trashed tasks found.</p>
+      )}
     </div>
   );
 };
