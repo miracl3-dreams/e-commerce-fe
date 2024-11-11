@@ -280,9 +280,27 @@ const Archive = () => {
         >
           Previous
         </button>
-        <span className="mx-2">
+        {Array.from({ length: totalPages }, (_, index) => index + 1)
+          .slice(
+            Math.max(0, currentPage - 3),
+            Math.min(totalPages, currentPage + 2)
+          )
+          .map((page) => (
+            <button
+              key={page}
+              className={`px-4 py-2 rounded-md mx-1 ${
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          ))}
+        {/* <span className="mx-2">
           Page {currentPage} of {totalPages}
-        </span>
+        </span> */}
         <button
           className="bg-black text-white px-4 py-2 rounded-md mx-1"
           onClick={() => handlePageChange(currentPage + 1)}

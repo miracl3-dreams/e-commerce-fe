@@ -383,26 +383,45 @@ const Tasks = () => {
           </div>
 
           <div className="flex self-center lg:self-end mt-4">
-            <div className="flex gap-2">
-              <button
-                className="bg-black text-white px-3 w-30 rounded-md"
+            <div className="flex gap-2 mt-6">
+              <Button
+                className={`px-3 py-2 rounded-md ${
+                  currentPage === 1 ? "bg-gray-300" : "bg-black text-white"
+                }`}
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
               >
-                Previous
-              </button>
+                Prev
+              </Button>
 
-              <span>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <Button
+                  key={index + 1}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`px-3 py-2 rounded-md ${
+                    currentPage === index + 1
+                      ? "bg-black text-white"
+                      : "bg-black text-white"
+                  }`}
+                >
+                  {index + 1}
+                </Button>
+              ))}
+              {/* <span>
                 Page {currentPage} of {totalPages}
-              </span>
+              </span> */}
 
-              <button
-                className="bg-black text-white px-3 w-30 rounded-md"
+              <Button
+                className={`px-3 py-2 rounded-md ${
+                  currentPage === totalPages
+                    ? "bg-gray-300"
+                    : "bg-black text-white"
+                }`}
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         </div>
