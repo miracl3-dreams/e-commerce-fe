@@ -5,16 +5,22 @@ import { useNavigate } from "react-router-dom";
 
 const Archive = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter] = useState("");
-  const trashedTasksPerPage = 5;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [status] = useState("");
+  const [trashedTasksPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTrashedTasks = async (page = 1) => {
+    const fetchTrashedTasks = async (
+      page = 1,
+      searchQuery = "",
+      status = ""
+    ) => {
+      setLoading(true);
       try {
         const token = localStorage.getItem("authToken");
 
@@ -25,7 +31,8 @@ const Archive = () => {
         }
 
         const response = await axios.get(
-          `http://localhost:8000/api/v1/task/trashed?page=${page}&per_page=${trashedTasksPerPage}`,
+          // `http://localhost:8000/api/v1/task/trashed?page=${page}&per_page=${trashedTasksPerPage}`,
+          `http://localhost:8000/api/v1/task/trashed`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -33,44 +40,57 @@ const Archive = () => {
             params: {
               page: page,
               per_page: trashedTasksPerPage,
-              query: searchTerm,
-              status: statusFilter.toLowerCase(),
+              query: searchQuery,
+              status: status,
             },
           }
         );
 
-        const data = response.data;
-        setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
-        setTotalPages(data.meta?.last_page || 1);
-        setCurrentPage(data.meta?.current_page || 1);
+        // const data = response.data;
+        setTrashedTasks(
+          Array.isArray(response.data.data.data) ? response.data.data.data : []
+        );
+        // setTotalPages(data.meta?.last_page || 1);
+        // setCurrentPage(data.meta?.current_page || 1);
+        setCurrentPage(response.data.meta?.current_page || 1);
+        setTotalPages(response.data.meta?.last_page || 1);
       } catch (error) {
         console.error("Error fetching trashed tasks:", error);
-        toast.error("Failed to load trashed tasks.");
+        // toast.error("Failed to load trashed tasks.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTrashedTasks(currentPage);
-  }, [currentPage, searchTerm, statusFilter]);
+    fetchTrashedTasks(currentPage, searchQuery, status);
+  }, [currentPage, searchQuery, status]);
 
   const handleSearch = async () => {
+    if (searchQuery.trim() === "") {
+      fetchTasks(1);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `http://localhost:8000/api/v1/trashed-search?query=${searchTerm}&status=${statusFilter}&page=1&per_page=${trashedTasksPerPage}`,
+        // `http://localhost:8000/api/v1/trashed-search?query=${searchQuery}&status=${status}&page=1&per_page=${trashedTasksPerPage}`,
+        `http://localhost:8000/api/v1/trashed-search`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            query: searchTerm,
-            status: statusFilter.toLowerCase(),
+            query: searchQuery,
+            status: status.toLowerCase(),
+            // status: status.toUpperCase(),
             page: currentPage,
           },
         }
       );
 
       const data = response.data;
-      console.log(`Date: ${data}`);
+      // console.log(`Date: ${data}`);
       setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
       setTotalPages(data.data.last_page);
       setCurrentPage(data.data.current_page);
@@ -216,8 +236,8 @@ const Archive = () => {
         {/* Search bar */}
         <input
           type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search tasks..."
           className="border border-gray-300 rounded-md px-4 py-2 mr-2"
         />
@@ -322,7 +342,7 @@ const Archive = () => {
                   className={`px-4 py-2 rounded-md mx-1 ${
                     currentPage === page
                       ? "bg-black text-white"
-                      : "bg-black text-white"
+                      : "bg-green-500 text-black"
                   }`}
                   onClick={() => handlePageChange(page)}
                 >
