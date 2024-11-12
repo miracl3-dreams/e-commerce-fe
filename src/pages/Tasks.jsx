@@ -89,9 +89,9 @@ const Tasks = () => {
       );
 
       if (response.data && Array.isArray(response.data.data)) {
+        // console.log(response.meta);
         setTasks(response.data.data);
         setCurrentPage(response.data.meta.current_page);
-        console.log(response.meta);
         setTotalPages(response.data.meta.last_page);
         // toast.success("Task search successful!", {
         //   position: "top-right",
