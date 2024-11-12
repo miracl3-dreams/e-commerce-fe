@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Archive = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -10,31 +11,46 @@ const Archive = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter] = useState("");
   const trashedTasksPerPage = 5;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrashedTasks = async (page = 1) => {
       try {
         const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          toast.error("You must be logged in to view your trashed tasks.");
+          navigate("/login");
+          return;
+        }
+
         const response = await axios.get(
           `http://localhost:8000/api/v1/task/trashed?page=${page}&per_page=${trashedTasksPerPage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            params: {
+              page: page,
+              per_page: trashedTasksPerPage,
+              query: searchTerm,
+              status: statusFilter.toLowerCase(),
+            },
           }
         );
 
         const data = response.data;
         setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
-        setTotalPages(data.data.last_page);
-        setCurrentPage(data.data.current_page);
+        setTotalPages(data.meta?.last_page || 1);
+        setCurrentPage(data.meta?.current_page || 1);
       } catch (error) {
         console.error("Error fetching trashed tasks:", error);
+        toast.error("Failed to load trashed tasks.");
       }
     };
 
     fetchTrashedTasks(currentPage);
-  }, [currentPage]);
+  }, [currentPage, searchTerm, statusFilter]);
 
   const handleSearch = async () => {
     try {
@@ -45,10 +61,16 @@ const Archive = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            query: searchTerm,
+            status: statusFilter.toLowerCase(),
+            page: currentPage,
+          },
         }
       );
 
       const data = response.data;
+      console.log(`Date: ${data}`);
       setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
       setTotalPages(data.data.last_page);
       setCurrentPage(data.data.current_page);
@@ -179,7 +201,7 @@ const Archive = () => {
               className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
               disabled={selectedTasks.length === 0}
             >
-              Restore Selected+
+              Restore Selected
             </button>
             <button
               onClick={forceDeleteSelectedTasks}
@@ -262,15 +284,15 @@ const Archive = () => {
                     <td className="border border-gray-300 px-4 py-2">
                       <button
                         onClick={() => restoreTask(task.id)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                        className="bg-blue-500 text-white text-xs md:text-md lg:text-lg px-4 py-2 rounded-md mr-2"
                       >
                         Restore
                       </button>
                       <button
                         onClick={() => forceDeleteTask(task.id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded-md"
+                        className="bg-red-500 text-white text-xs md:text-md lg:text-lg px-4 py-2 rounded-md"
                       >
-                        Force Delete
+                        Delete (Force)
                       </button>
                     </td>
                   </tr>

@@ -38,14 +38,17 @@ const Tasks = () => {
   const fetchTasks = async (page = 1, searchQuery = "", status = "") => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        ` http://127.0.0.1:8000/api/v1/tasks?page=${page}&per_page=${tasksPerPage}&query=${searchQuery}&status=${status}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
+      const response = await axios.get(`http://127.0.0.1:8000/api/v1/tasks`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        params: {
+          page,
+          per_page: tasksPerPage,
+          query: searchQuery,
+          status: status,
+        },
+      });
 
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
@@ -66,32 +69,41 @@ const Tasks = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/v1/tasks-search",
+        `http://127.0.0.1:8000/api/v1/tasks-search`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           params: {
-            search: searchQuery,
-            status: status,
+            query: searchQuery,
+            status: status.toLowerCase(),
             page: currentPage,
           },
         }
       );
-      setTasks(response.data.data);
-      toast.success("Task search successfully!", {
-        position: "top-right",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
+
+      if (response.data && Array.isArray(response.data.data)) {
+        setTasks(response.data.data);
+        setCurrentPage(response.data.meta.current_page);
+        setTotalPages(response.data.meta.last_page);
+        toast.success("Task search successful!", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else {
+        setTasks([]);
+        setMessage("No tasks found.");
+      }
     } catch (error) {
       console.error("Error searching tasks:", error);
+      setMessage("Error performing task search.");
     }
   };
 
@@ -254,8 +266,8 @@ const Tasks = () => {
                 className="px-4 py-2 rounded-md"
                 type="text"
                 placeholder="Search..."
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -388,7 +400,7 @@ const Tasks = () => {
             ))}
           </div>
           {tasks.length > 0 && totalPages > 1 && !loading && (
-            <div className="flex self-center lg:justify-end mt-4">
+            <div className="flex flex-col self-center lg:items-end mt-4">
               <div className="flex gap-2 mt-6">
                 {/* Previous Button */}
                 <Button
@@ -413,7 +425,7 @@ const Tasks = () => {
                       className={`px-3 py-2 rounded-md ${
                         currentPage === pageNumber
                           ? "bg-black text-white"
-                          : "bg-black text-white"
+                          : "bg-green-400 text-black"
                       }`}
                     >
                       {pageNumber}
