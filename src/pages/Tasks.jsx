@@ -20,7 +20,7 @@ const Tasks = () => {
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [status, setStatus] = useState("");
+  const [status] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,6 +67,11 @@ const Tasks = () => {
   };
 
   const handleSearch = async () => {
+    if (searchQuery.trim() === "") {
+      fetchTasks(1);
+      return;
+    }
+
     try {
       const response = await axios.get(
         `http://127.0.0.1:8000/api/v1/tasks-search`,
@@ -77,6 +82,7 @@ const Tasks = () => {
           params: {
             query: searchQuery,
             status: status.toLowerCase(),
+            // status: status.toUpperCase(),
             page: currentPage,
           },
         }
@@ -85,18 +91,19 @@ const Tasks = () => {
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
         setCurrentPage(response.data.meta.current_page);
+        console.log(response.meta);
         setTotalPages(response.data.meta.last_page);
-        toast.success("Task search successful!", {
-          position: "top-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
+        // toast.success("Task search successful!", {
+        //   position: "top-right",
+        //   autoClose: 1500,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   progress: undefined,
+        //   theme: "light",
+        //   transition: Bounce,
+        // });
       } else {
         setTasks([]);
         setMessage("No tasks found.");
@@ -425,7 +432,7 @@ const Tasks = () => {
                       className={`px-3 py-2 rounded-md ${
                         currentPage === pageNumber
                           ? "bg-black text-white"
-                          : "bg-green-400 text-black"
+                          : "bg-green-500 text-black"
                       }`}
                     >
                       {pageNumber}

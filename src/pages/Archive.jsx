@@ -8,51 +8,38 @@ const Archive = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [status] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter] = useState("");
   const trashedTasksPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTrashedTasks = async (
-      page = 1,
-      searchQuery = "",
-      status = ""
-    ) => {
-      setLoading(true);
+    const fetchTrashedTasks = async (page = 1) => {
       try {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
-          console.log("No token found. Redirecting to login.");
           toast.error("You must be logged in to view your trashed tasks.");
           navigate("/login");
           return;
         }
 
         const response = await axios.get(
-          `http://localhost:8000/api/v1/task/trashed`,
+          `http://localhost:8000/api/v1/task/trashed?page=${page}&per_page=${trashedTasksPerPage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
             params: {
-              page,
+              page: page,
               per_page: trashedTasksPerPage,
-              query: searchQuery,
-              status: status,
+              query: searchTerm,
+              status: statusFilter.toLowerCase(),
             },
           }
         );
 
-        console.log("Response from backend:", response.data);
         const data = response.data;
-
-        // Check if tasks belong to the authenticated user (log user_id)
-        const userIds = data.data.data.map((task) => task.user_id);
-        console.log("User IDs in retrieved tasks:", userIds);
-
         setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
         setTotalPages(data.meta?.last_page || 1);
         setCurrentPage(data.meta?.current_page || 1);
@@ -63,28 +50,30 @@ const Archive = () => {
     };
 
     fetchTrashedTasks(currentPage);
-  }, [currentPage, searchQuery, status]);
+  }, [currentPage, searchTerm, statusFilter]);
 
   const handleSearch = async () => {
     try {
+      const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `http://localhost:8000/api/v1/trashed-search`,
+        `http://localhost:8000/api/v1/trashed-search?query=${searchTerm}&status=${statusFilter}&page=1&per_page=${trashedTasksPerPage}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Authorization: `Bearer ${token}`,
           },
           params: {
-            query: searchQuery,
-            status: status.toLowerCase(),
+            query: searchTerm,
+            status: statusFilter.toLowerCase(),
             page: currentPage,
           },
         }
       );
 
       const data = response.data;
+      console.log(`Date: ${data}`);
       setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
-      setTotalPages(data.data.last_page || 1);
-      setCurrentPage(data.data.current_page || 1);
+      setTotalPages(data.data.last_page);
+      setCurrentPage(data.data.current_page);
     } catch (error) {
       console.error("Error searching tasks:", error);
     }
@@ -170,12 +159,16 @@ const Archive = () => {
   };
 
   const restoreSelectedTasks = async () => {
-    await Promise.all(selectedTasks.map((taskId) => restoreTask(taskId)));
+    for (const taskId of selectedTasks) {
+      await restoreTask(taskId);
+    }
     setSelectedTasks([]);
   };
 
   const forceDeleteSelectedTasks = async () => {
-    await Promise.all(selectedTasks.map((taskId) => forceDeleteTask(taskId)));
+    for (const taskId of selectedTasks) {
+      await forceDeleteTask(taskId);
+    }
     setSelectedTasks([]);
   };
 
@@ -222,15 +215,15 @@ const Archive = () => {
 
         {/* Search bar */}
         <input
-          value={searchQuery}
           type="text"
-          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search tasks..."
           className="border border-gray-300 rounded-md px-4 py-2 mr-2"
-          onChange={(e) => setSearchQuery(e.target.value)}
         />
         <button
-          className="bg-gray-500 text-white px-4 py-2 rounded-md"
           onClick={handleSearch}
+          className="bg-gray-500 text-white px-4 py-2 rounded-md"
         >
           Search
         </button>
