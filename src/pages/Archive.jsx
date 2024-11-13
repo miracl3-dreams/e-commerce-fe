@@ -11,7 +11,7 @@ const Archive = () => {
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [status] = useState("");
-  const [trashedTasksPerPage] = useState(5);
+  const trashedTasksPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,12 +62,13 @@ const Archive = () => {
       }
     };
 
+    setCurrentPage(1);
     fetchTrashedTasks(currentPage, searchQuery, status);
   }, [currentPage, searchQuery, status]);
 
   const handleSearch = async () => {
     if (searchQuery.trim() === "") {
-      fetchTasks(1);
+      fetchTrashedTasks(1);
       return;
     }
 
@@ -330,26 +331,21 @@ const Archive = () => {
             >
               Previous
             </button>
-
-            {Array.from({ length: totalPages }, (_, index) => index + 1)
-              .slice(
-                Math.max(0, currentPage - 3),
-                Math.min(totalPages, currentPage + 2)
-              )
-              .map((page) => (
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
                 <button
                   key={page}
-                  className={`px-4 py-2 rounded-md mx-1 ${
-                    currentPage === page
-                      ? "bg-black text-white"
-                      : "bg-green-500 text-black"
-                  }`}
                   onClick={() => handlePageChange(page)}
+                  className={`px-4 py-2 mx-2 rounded-md ${
+                    page === currentPage
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-300 text-black"
+                  }`}
                 >
                   {page}
                 </button>
-              ))}
-
+              )
+            )}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               className="px-4 py-2 mx-2 bg-black rounded-md text-white"
