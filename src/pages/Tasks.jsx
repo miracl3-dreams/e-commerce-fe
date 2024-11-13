@@ -110,7 +110,7 @@ const Tasks = () => {
       }
     } catch (error) {
       console.error("Error searching tasks:", error);
-      setMessage("Error performing task search.");
+      setMessage("No Task Found.");
     }
   };
 

@@ -10,6 +10,7 @@ const Archive = () => {
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [message, setMessage] = useState("");
   const [status] = useState("");
   const trashedTasksPerPage = 5;
   const navigate = useNavigate();
@@ -91,12 +92,13 @@ const Archive = () => {
       );
 
       const data = response.data;
-      // console.log(`Date: ${data}`);
+      // console.log(response.data);
       setTrashedTasks(Array.isArray(data.data.data) ? data.data.data : []);
       setTotalPages(data.data.last_page);
       setCurrentPage(data.data.current_page);
     } catch (error) {
       console.error("Error searching tasks:", error);
+      // setMessage("No Task Found");
     }
   };
 
@@ -339,7 +341,7 @@ const Archive = () => {
                   className={`px-4 py-2 mx-2 rounded-md ${
                     page === currentPage
                       ? "bg-blue-500 text-white"
-                      : "bg-gray-300 text-black"
+                      : "bg-green-500 text-black"
                   }`}
                 >
                   {page}
