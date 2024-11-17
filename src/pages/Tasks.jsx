@@ -68,7 +68,7 @@ const Tasks = () => {
 
   const handleSearch = async () => {
     if (searchQuery.trim() === "") {
-      fetchTasks(1);
+      fetchTasks(1, searchQuery);
       return;
     }
 
@@ -82,7 +82,6 @@ const Tasks = () => {
           params: {
             query: searchQuery,
             status: status.toLowerCase(),
-            // status: status.toUpperCase(),
             page: currentPage,
           },
         }
@@ -93,17 +92,6 @@ const Tasks = () => {
         setTasks(response.data.data);
         setCurrentPage(response.data.meta.current_page);
         setTotalPages(response.data.meta.last_page);
-        // toast.success("Task search successful!", {
-        //   position: "top-right",
-        //   autoClose: 1500,
-        //   hideProgressBar: false,
-        //   closeOnClick: true,
-        //   pauseOnHover: true,
-        //   draggable: true,
-        //   progress: undefined,
-        //   theme: "light",
-        //   transition: Bounce,
-        // });
       } else {
         setTasks([]);
         setMessage("No tasks found.");
@@ -254,7 +242,7 @@ const Tasks = () => {
       <h1 className="font-poppins font-bold text-3xl text-black py-8">Tasks</h1>
 
       <div className="flex flex-col items-center gap-5 w-full">
-        <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl border-2 border-black rounded-md font-poppins">
+        <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
           {/* // Controls for Creating and Searching Tasks // */}
           <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
             <div className="flex items-center gap-x-2">
