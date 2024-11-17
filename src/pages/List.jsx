@@ -5,6 +5,8 @@ const List = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [commentVisibility, setCommentVisibility] = useState({});
+  const [navigate, setNavigate] = useState();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -22,43 +24,88 @@ const List = () => {
     };
 
     fetchPosts();
-  }, []);
+  }, [setNavigate]);
+
+  const toggleComments = (postId, commentsLength) => {
+    setCommentVisibility((prev) => ({
+      ...prev,
+      [postId]: prev[postId] === commentsLength ? 1 : commentsLength,
+    }));
+  };
+
+  const renderComments = (comments, postId) => {
+    const visibleCount = commentVisibility[postId] || 1;
+    const visibleComments = comments.slice(0, visibleCount);
+
+    return (
+      <>
+        {visibleComments.map((comment) => (
+          <div
+            key={comment.id}
+            className="flex items-start space-x-4 border-t border-gray-200 pt-4"
+          >
+            {/* <img
+              src={comment.user?.avatar || "https://via.placeholder.com/40"}
+              alt="User Avatar"
+              className="w-10 h-10 rounded-full"
+            /> */}
+            <div>
+              <div className="flex items-center space-x-2">
+                <strong>{comment.user?.name || "Anonymous"}</strong>
+                {/* <span className="text-gray-500 text-sm">
+                  {comment.created_at}
+                </span> */}
+              </div>
+              <p className="text-gray-800">{comment.body}</p>
+              <div className="flex space-x-4 mt-2 text-sm text-blue-600">
+                <button className="hover:underline">Like</button>
+                <button className="hover:underline">Reply</button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {comments.length > 10 && (
+          <button
+            onClick={() => toggleComments(postId, comments.length)}
+            className="text-blue-500 hover:underline mt-4"
+          >
+            {visibleCount === 10 ? "Show More Comments" : "Show Less Comments"}
+          </button>
+        )}
+      </>
+    );
+  };
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="bg-white relative flex flex-col items-center p-6 h-screen w-full">
-      <h1 className="font-poppins font-bold text-3xl text-white py-8">Posts</h1>
+    <div className="bg-gray-100 p-6 min-h-screen">
+      <h1 className="text-2xl font-bold flex justify-center text-gray-800 mb-6">
+        Posts
+      </h1>
       {posts.length > 0 ? (
-        <ul className="bg-slate-500 w-full pt-4">
+        <div className="space-y-6">
           {posts.map((post) => (
-            <li
+            <div
               key={post.id}
-              className="mb-4 p-4 border border-gray-300 rounded-md"
+              className="bg-white shadow-md rounded-lg p-6 border border-gray-200"
             >
-              <h2 className="text-xl font-bold text-white">{post.title}</h2>
-              <p>{post.body}</p>
-
-              <h3 className="mt-2">Comments:</h3>
-              {post.comments.length > 0 ? (
-                post.comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="border border-gray-200 p-2 mb-2 rounded-md text-white"
-                  >
-                    <strong>{comment.user?.name || "User"}:</strong>{" "}
-                    {comment.body}
-                  </div>
-                ))
-              ) : (
-                <p>No comments available.</p>
-              )}
-            </li>
+              <h2 className="text-xl font-bold text-gray-900">{post.title}</h2>
+              <p className="text-gray-700 mt-2">{post.body}</p>
+              <h3 className="text-lg font-semibold mt-4">Comments:</h3>
+              <div className="mt-2 space-y-4">
+                {post.comments.length > 0 ? (
+                  renderComments(post.comments, post.id)
+                ) : (
+                  <p className="text-gray-500">No comments yet.</p>
+                )}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p>No posts found.</p>
+        <p className="text-gray-500">No posts found.</p>
       )}
     </div>
   );

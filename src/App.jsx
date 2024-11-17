@@ -10,7 +10,8 @@ import SignUp from "./pages/SignUp";
 import AuthRoute from "./routes/AuthRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Archive from "./pages/Archive";
+import Archive from "./pages/Archive.jsx";
+import Test from "./pages/test/Test";
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/test" element={<Test />} />
         <Route
           path="/dashboard"
           element={<AuthRoute element={NavigationBar} />}
