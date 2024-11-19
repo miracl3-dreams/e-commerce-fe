@@ -12,7 +12,7 @@ const Archive = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
   const [trashedTasksPerPage] = useState(5);
   const [status] = useState("");
   const [loading, setLoading] = useState(false);
@@ -107,11 +107,12 @@ const Archive = () => {
 
       if (trashedTasks.length === 0) {
         setMessage("No search found.");
+        // setLoading(true);
       } else {
         setMessage("");
       }
     } catch (error) {
-      setMessage("Error fetching data. Please try again.");
+      setMessage("Error fetching trashed tasks: Please try again.");
       console.error("Error fetching trashed tasks:", error);
     } finally {
       setLoading(false);
@@ -140,10 +141,10 @@ const Archive = () => {
     );
   };
 
-  const handlePageClick = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    fetchTrashedTasks(pageNumber);
-  };
+  // const handlePageClick = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  //   fetchTrashedTasks(pageNumber);
+  // };
 
   const renderPagination = () => {
     if (trashedTasks.last_page <= 1) return null;
@@ -322,44 +323,55 @@ const Archive = () => {
                 </tr>
               </thead>
               <tbody>
-                {trashedTasks.data.length > 0 ? (
-                  trashedTasks.data.map((task) => (
-                    <tr key={task.id}>
-                      <td className="flex justify-center px-4 py-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedTasks.includes(task.id)}
-                          onChange={() => handleCheckboxChange(task.id)}
-                        />
-                      </td>
-                      <td className="text-center px-4 py-2">{task.name}</td>
-                      <td className="text-center px-4 py-2">{task.task}</td>
-                      <td className="text-center px-4 py-2">{task.status}</td>
-                      <td className="text-center px-4 py-2 flex justify-start gap-4">
-                        <div className="flex justify-center items-center gap-4">
-                          <Button
-                            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                            onClick={() => handleRestoreTask(task.id)}
-                          >
-                            Restore
-                          </Button>
-                          <Button
-                            className="bg-red-500 text-white px-4 py-2 rounded-md"
-                            onClick={() => handleForceDeleteTask(task.id)}
-                          >
-                            Delete (Force)
-                          </Button>
-                        </div>
+                {trashedTasks.data ? (
+                  trashedTasks.data.length > 0 ? (
+                    trashedTasks.data.map((task) => (
+                      <tr key={task.id}>
+                        <td className="flex justify-center px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedTasks.includes(task.id)}
+                            onChange={() => handleCheckboxChange(task.id)}
+                          />
+                        </td>
+                        <td className="text-center px-4 py-2">{task.name}</td>
+                        <td className="text-center px-4 py-2">{task.task}</td>
+                        <td className="text-center px-4 py-2">{task.status}</td>
+                        <td className="text-center px-4 py-2 flex justify-center gap-4">
+                          <div className="flex gap-2">
+                            <Button
+                              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                              onClick={() => handleRestoreTask(task.id)}
+                            >
+                              Restore
+                            </Button>
+                            <Button
+                              className="bg-red-500 text-white px-4 py-2 rounded-md"
+                              onClick={() => handleForceDeleteTask(task.id)}
+                            >
+                              Delete (Force)
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="text-center text-[#BBBBBB] text-xl px-4 py-2"
+                      >
+                        {message || "No Tasks Found!"}
                       </td>
                     </tr>
-                  ))
+                  )
                 ) : (
                   <tr>
                     <td
                       colSpan="5"
                       className="text-center text-[#BBBBBB] text-xl px-4 py-2"
                     >
-                      {message || "No tasks found."}
+                      {message || "Loading..."}
                     </td>
                   </tr>
                 )}
