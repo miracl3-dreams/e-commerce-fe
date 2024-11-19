@@ -107,7 +107,6 @@ const Archive = () => {
 
       if (trashedTasks.length === 0) {
         setMessage("No search found.");
-        // setLoading(true);
       } else {
         setMessage("");
       }
@@ -141,11 +140,6 @@ const Archive = () => {
     );
   };
 
-  // const handlePageClick = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  //   fetchTrashedTasks(pageNumber);
-  // };
-
   const renderPagination = () => {
     if (trashedTasks.last_page <= 1) return null;
 
@@ -156,8 +150,8 @@ const Archive = () => {
           key={i}
           className={`px-3 py-1 rounded-md ${
             i === trashedTasks.current_page
-              ? "bg-blue-500 text-white"
-              : "bg-gray-300"
+              ? "bg-black text-white"
+              : "bg-green-500"
           }`}
           onClick={() => fetchTrashedTasks(i)}
         >
@@ -301,7 +295,7 @@ const Archive = () => {
           <div className="overflow-x-auto w-full mt-4 rounded-md">
             <table className="min-w-full table-auto bg-white">
               <thead className="w-full">
-                <tr className="bg-gray-200">
+                <tr className="bg-gray-400">
                   <td className="text-center px-4 py-2">
                     <input
                       type="checkbox"
