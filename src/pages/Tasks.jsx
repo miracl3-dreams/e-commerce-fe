@@ -87,18 +87,29 @@ const Tasks = () => {
         }
       );
 
-      if (response.data && Array.isArray(response.data.data)) {
-        // console.log(response.meta);
+      console.log("API Response:", response.data);
+
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.length > 0
+      ) {
         setTasks(response.data.data);
-        setCurrentPage(response.data.meta.current_page);
-        setTotalPages(response.data.meta.last_page);
+        setCurrentPage(response.data.current_page || 1);
+        setTotalPages(response.data.last_page || 1);
+        setMessage("");
       } else {
         setTasks([]);
-        setMessage("No tasks found.");
+        setCurrentPage(1);
+        setTotalPages(1);
+        setMessage(response.data.message || "No tasks found.");
       }
     } catch (error) {
       console.error("Error searching tasks:", error);
-      setMessage("No Task Found.");
+      setTasks([]);
+      setCurrentPage(1);
+      setTotalPages(1);
+      setMessage("An error occurred while searching for tasks.");
     }
   };
 
