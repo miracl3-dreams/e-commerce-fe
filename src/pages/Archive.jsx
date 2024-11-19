@@ -371,7 +371,7 @@ const Archive = () => {
                       colSpan="5"
                       className="text-center text-[#BBBBBB] text-xl px-4 py-2"
                     >
-                      {message || "Loading..."}
+                      {message || "No Tasks Found!"}
                     </td>
                   </tr>
                 )}
