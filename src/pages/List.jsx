@@ -105,7 +105,11 @@ const List = () => {
           ))}
         </div>
       ) : (
-        <p className="text-gray-500">No posts found.</p>
+        <div className="bg-white shadow-md rounded-lg flex justify-center py-10 w-full">
+          <h1 className="text-[#BBBBBB] text-xs md:text-md lg:text-2xl">
+            No Posts Found!
+          </h1>
+        </div>
       )}
     </div>
   );
