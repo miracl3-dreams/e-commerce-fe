@@ -7,6 +7,7 @@ import List from "./pages/List";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import Settings from "./pages/Settings";
 import AuthRoute from "./routes/AuthRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,22 +22,8 @@ function App() {
   return (
     <>
       <ToastContainer />
-      {/* <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/dashboard" element={<NavigationBar />}>
-          <Route index element={<AuthRoute element={Dashboard} />} />
-          <Route path="tasks" element={<AuthRoute element={Tasks} />} />
-          <Route path="list" element={<AuthRoute element={List} />} />
-          <Route path="contact" element={<AuthRoute element={Contact} />} />
-          <Route
-            path="tasks/archive"
-            element={<AuthRoute element={Archive} />}
-          />
-        </Route>
-      </Routes> */}
-
       <Routes>
+        <Route path="/settings" element={<Settings />} />
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/test" element={<Test />} />

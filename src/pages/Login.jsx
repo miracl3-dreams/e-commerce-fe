@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button"; // Ensure this path is correct
+import Button from "../components/Button";
 import axios from "../components/axios";
 import { toast, Bounce } from "react-toastify";
 
@@ -32,13 +32,9 @@ const Login = () => {
 
       if (response.status === 200) {
         const data = response.data;
-        // console.log(data);
         localStorage.setItem("authToken", data.data.token);
         localStorage.setItem("userName", data.data.user.name);
-        // console.log(data.data.email);
-        // console.log(data.data.password);
         setFormData({ email: "", password: "" });
-        // setMessage("Login successful!");
         toast.success("Successfully Login!", {
           position: "top-right",
           autoClose: 1500,
