@@ -2,27 +2,30 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
 import { FiSettings } from "react-icons/fi";
-import { MdArrowDropDown } from "react-icons/md";
-import axios from "../components/axios";
-import { toast, Bounce } from "react-toastify";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { RxCross2 } from "react-icons/rx";
+import IconProfile from "./IconProfile";
+import Cards from "./Cards";
+import axios from "../components/axios";
+import { toast, Bounce } from "react-toastify";
 
 const NavigationBar = () => {
-  const [userName, setUserName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mobileView, setDesktopView] = useState(false);
+  const [mobileView, setMobileView] = useState(false);
+  const [userData, setUserData] = useState({ userName: "", email: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Retrieve user data from localStorage
     const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserName(storedName);
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedName && storedEmail) {
+      setUserData({ userName: storedName, email: storedEmail });
     }
   }, []);
 
   const handleHamburgerButton = () => {
-    setDesktopView((e) => !e);
+    setMobileView((prev) => !prev);
   };
 
   const handleLogout = async () => {
@@ -58,8 +61,7 @@ const NavigationBar = () => {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userName");
+      localStorage.clear();
       navigate("/login");
     }
   };
@@ -74,8 +76,9 @@ const NavigationBar = () => {
 
   return (
     <div>
-      <nav className="bg-[#D72323] flex justify-between items-center flex-row px-5 py-5 text-white">
-        <Link to={"/dashboard"} className="text-3xl font-bold text-white">
+      {/* Desktop Navigation */}
+      <nav className="bg-[#D72323] flex justify-between items-center px-5 py-5 text-white">
+        <Link to={"/dashboard"} className="text-3xl font-bold">
           Task Management
         </Link>
         <ul className="hidden lg:flex items-center gap-8 font-bold">
@@ -88,40 +91,45 @@ const NavigationBar = () => {
           <li>
             <Link to={"contact"}>Contact</Link>
           </li>
-          <li className="flex items-center gap-4">
-            {userName && (
-              <div className="relative">
-                <span
-                  className="flex items-center cursor-pointer"
-                  onClick={toggleDropdown}
-                >
-                  {userName} <MdArrowDropDown className="ml-1 text-2xl" />
-                </span>
-                {isDropdownOpen && (
-                  <div className="absolute z-10 right-0 mt-2 w-32 bg-white text-black shadow-md rounded-md p-2">
-                    <button
-                      className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
-                      onClick={handleSettings}
-                    >
-                      <FiSettings /> Settings
-                    </button>
-                    <button
-                      className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
-                      onClick={handleLogout}
-                    >
-                      <LuLogOut /> Logout
-                    </button>
+          <li className="relative">
+            <div
+              className="flex items-center cursor-pointer"
+              onClick={toggleDropdown}
+            >
+              <IconProfile />
+            </div>
+            {isDropdownOpen && (
+              <div className="absolute z-10 right-0 mt-2 w-56">
+                <Cards className="bg-white text-black shadow-md">
+                  <div className="border-b pb-3 mb-3 text-sm text-gray-700">
+                    <p className="font-semibold">{userData.userName}</p>
+                    <p>{userData.email}</p>
                   </div>
-                )}
+                  <button
+                    className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
+                    onClick={handleSettings}
+                  >
+                    <FiSettings /> Settings
+                  </button>
+                  <button
+                    className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
+                    onClick={handleLogout}
+                  >
+                    <LuLogOut /> Logout
+                  </button>
+                </Cards>
               </div>
             )}
           </li>
         </ul>
+
+        {/* Mobile Hamburger Menu */}
         <button className="text-2xl lg:hidden" onClick={handleHamburgerButton}>
           {mobileView ? <RxCross2 /> : <GiHamburgerMenu />}
         </button>
-        {mobileView ? (
-          <ul className="fixed left-0 top-0 z-10 bg-[#D72323] flex flex-col items-center gap-1 px-5 pt-10 h-screen">
+
+        {mobileView && (
+          <ul className="fixed left-0 top-0 z-10 bg-[#D72323] flex flex-col items-center gap-5 px-5 pt-10 h-[100vh] text-white font-bold">
             <li>
               <Link onClick={handleHamburgerButton} to={"tasks"}>
                 Tasks
@@ -137,37 +145,41 @@ const NavigationBar = () => {
                 Contact
               </Link>
             </li>
-            <li className="flex items-center gap-4">
-              {userName && (
-                <div className="relative">
-                  <span
-                    className="flex items-center cursor-pointer"
-                    onClick={toggleDropdown}
-                  >
-                    {userName} <MdArrowDropDown className="ml-1 text-2xl" />
-                  </span>
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 right-0 mt-2 w-32 bg-white text-black shadow-md rounded-md p-2">
-                      <button
-                        className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
-                        onClick={handleSettings}
-                      >
-                        <FiSettings /> Settings
-                      </button>
-                      <button
-                        className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
-                        onClick={handleLogout}
-                      >
-                        <LuLogOut /> Logout
-                      </button>
+            <li className="relative">
+              <div
+                className="flex items-center cursor-pointer"
+                onClick={toggleDropdown}
+              >
+                <IconProfile />
+              </div>
+              {isDropdownOpen && (
+                <div className="absolute z-10 mt-2 w-56">
+                  <Cards className="bg-white text-black shadow-md">
+                    <div className="border-b pb-3 mb-3 text-sm text-gray-700">
+                      <p className="font-semibold">{userData.userName}</p>
+                      <p>{userData.email}</p>
                     </div>
-                  )}
+                    <button
+                      className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
+                      onClick={handleSettings}
+                    >
+                      <FiSettings /> Settings
+                    </button>
+                    <button
+                      className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
+                      onClick={handleLogout}
+                    >
+                      <LuLogOut /> Logout
+                    </button>
+                  </Cards>
                 </div>
               )}
             </li>
           </ul>
-        ) : null}
+        )}
       </nav>
+
+      {/* Outlet for Nested Routes */}
       <Outlet />
     </div>
   );

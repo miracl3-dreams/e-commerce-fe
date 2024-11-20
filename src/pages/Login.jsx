@@ -34,6 +34,7 @@ const Login = () => {
         const data = response.data;
         localStorage.setItem("authToken", data.data.token);
         localStorage.setItem("userName", data.data.user.name);
+        localStorage.setItem("userEmail", data.data.user.email);
         setFormData({ email: "", password: "" });
         toast.success("Successfully Login!", {
           position: "top-right",

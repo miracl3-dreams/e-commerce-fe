@@ -50,6 +50,8 @@ const Tasks = () => {
         },
       });
 
+      console.log("API Response:", response.data);
+
       if (response.data && Array.isArray(response.data.data)) {
         setTasks(response.data.data);
         setCurrentPage(response.data.meta.current_page);
@@ -249,217 +251,223 @@ const Tasks = () => {
   };
 
   return (
-    <div className="bg-white relative flex flex-col items-center h-full w-full">
-      <h1 className="font-poppins font-bold text-3xl text-black py-8">Tasks</h1>
+    <>
+      <div className="bg-white relative flex flex-col items-center h-full w-full">
+        <h1 className="font-poppins font-bold text-3xl text-black py-8">
+          Tasks
+        </h1>
 
-      <div className="flex flex-col items-center gap-5 w-full">
-        <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
-          {/* // Controls for Creating and Searching Tasks // */}
-          <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
-            <div className="flex items-center gap-x-2">
-              <Button
-                className="bg-green-500 px-4 py-2 rounded-md"
-                onClick={openModalForCreate}
-              >
-                Create
-              </Button>
-              <Button className="bg-yellow-500 px-4 py-2 rounded-md">
-                <Link to={"archive"}>Archive</Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                className="px-4 py-2 rounded-md"
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                onClick={handleSearch}
-              >
-                Search
-              </Button>
-            </div>
-          </div>
-
-          {/* Display Message if No Tasks Found */}
-          {tasks.length === 0 && !loading && (
-            <p className="self-center text-center text-5xl text-red-500 font-semibold">
-              {message || "No tasks found."}
-            </p>
-          )}
-
-          <Modal isOpen={isModalOpen} className="bg-slate-300">
-            <div className="flex justify-between items-center">
-              <h1 className="font-poppins">
-                {currentTask ? "Update Task" : "Add Task"}
-              </h1>
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setMessage("");
-                }}
-              >
-                <IoMdClose />
-              </button>
-            </div>
-            <div className="flex flex-col items-start gap-2 pt-5 w-[360px]">
-              <input
-                className="pl-1 py-1 text-sm rounded-md w-full"
-                name="name"
-                placeholder="Task Title..."
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-              <textarea
-                className="pl-1 py-1 text-sm rounded-md w-full"
-                name="task"
-                placeholder="Task Description..."
-                value={formData.task}
-                onChange={handleInputChange}
-                rows={5}
-                cols={5}
-              />
-
-              {currentTask && (
-                <div className="flex flex-col gap-2">
-                  <span>Status:</span>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="status"
-                      value="true"
-                      checked={formData.status === true}
-                      onChange={handleInputChange}
-                    />
-                    <span className="ml-2">Completed</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="status"
-                      value="false"
-                      checked={formData.status === false}
-                      onChange={handleInputChange}
-                    />
-                    <span className="ml-2">Incomplete</span>
-                  </label>
-                </div>
-              )}
-              <Button
-                className="bg-green-500 w-full px-4 py-2 rounded-md"
-                onClick={handleCreateOrUpdateTask}
-              >
-                {currentTask ? "Update" : "Create"}
-              </Button>
-            </div>
-          </Modal>
-          <Modal isOpen={isDeleteModalOpen} className="bg-slate-300">
-            <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold mb-4">
-                Do you want to delete this task?
-              </h2>
-              <div className="flex gap-3">
+        <div className="flex flex-col items-center gap-5 w-full">
+          <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+            {/* // Controls for Creating and Searching Tasks // */}
+            <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
+              <div className="flex items-center gap-x-2">
                 <Button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                  onClick={handleDeleteTask}
+                  className="bg-green-500 px-4 py-2 rounded-md"
+                  onClick={openModalForCreate}
                 >
-                  Yes, Delete
+                  Create
                 </Button>
+                <Button className="bg-yellow-500 px-4 py-2 rounded-md">
+                  <Link to={"archive"}>Archive</Link>
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  className="px-4 py-2 rounded-md"
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <Button
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
-                  onClick={closeDeleteModal}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  onClick={handleSearch}
                 >
-                  Cancel
+                  Search
                 </Button>
               </div>
             </div>
-          </Modal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
-            {tasks.map((task) => (
-              <Cards className={"bg-white"} key={task.id}>
-                <h1 className="text-lg font-semibold">
-                  Task Title: {task.name}
-                </h1>
-                <h1 className="text-lg font-semibold">
-                  Task Description: {task.task}
-                </h1>
-                <h1 className="text-lg font-semibold">Status: {task.status}</h1>
 
-                <div className="flex gap-3 mt-4 justify-center">
-                  <Button
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                    onClick={() => openModalForUpdate(task)}
-                  >
-                    Update
-                  </Button>
+            {/* Display Message if No Tasks Found */}
+            {tasks.length === 0 && !loading && (
+              <p className="self-center text-center text-5xl text-red-500 font-semibold">
+                {message || "No tasks found."}
+              </p>
+            )}
+
+            <Modal isOpen={isModalOpen} className="bg-slate-300">
+              <div className="flex justify-between items-center">
+                <h1 className="font-poppins">
+                  {currentTask ? "Update Task" : "Add Task"}
+                </h1>
+                <button
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setMessage("");
+                  }}
+                >
+                  <IoMdClose />
+                </button>
+              </div>
+              <div className="flex flex-col items-start gap-2 pt-5 w-[360px]">
+                <input
+                  className="pl-1 py-1 text-sm rounded-md w-full"
+                  name="name"
+                  placeholder="Task Title..."
+                  value={formData.name}
+                  onChange={handleInputChange}
+                />
+                <textarea
+                  className="pl-1 py-1 text-sm rounded-md w-full"
+                  name="task"
+                  placeholder="Task Description..."
+                  value={formData.task}
+                  onChange={handleInputChange}
+                  rows={5}
+                  cols={5}
+                />
+
+                {currentTask && (
+                  <div className="flex flex-col gap-2">
+                    <span>Status:</span>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="true"
+                        checked={formData.status === true}
+                        onChange={handleInputChange}
+                      />
+                      <span className="ml-2">Completed</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="false"
+                        checked={formData.status === false}
+                        onChange={handleInputChange}
+                      />
+                      <span className="ml-2">Incomplete</span>
+                    </label>
+                  </div>
+                )}
+                <Button
+                  className="bg-green-500 w-full px-4 py-2 rounded-md"
+                  onClick={handleCreateOrUpdateTask}
+                >
+                  {currentTask ? "Update" : "Create"}
+                </Button>
+              </div>
+            </Modal>
+            <Modal isOpen={isDeleteModalOpen} className="bg-slate-300">
+              <div className="flex flex-col items-center">
+                <h2 className="text-lg font-semibold mb-4">
+                  Do you want to delete this task?
+                </h2>
+                <div className="flex gap-3">
                   <Button
                     className="bg-red-500 text-white px-4 py-2 rounded-md"
-                    onClick={() => openDeleteModal(task.id)}
+                    onClick={handleDeleteTask}
                   >
-                    Delete
+                    Yes, Delete
+                  </Button>
+                  <Button
+                    className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                    onClick={closeDeleteModal}
+                  >
+                    Cancel
                   </Button>
                 </div>
-              </Cards>
-            ))}
-          </div>
-          {tasks.length > 0 && totalPages > 1 && !loading && (
-            <div className="flex flex-col self-center lg:items-end mt-4">
-              <div className="flex gap-2 mt-6">
-                {/* Previous Button */}
-                <Button
-                  className={`px-4 py-2 rounded-md ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "bg-blue-500 text-white"
-                  }`}
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-
-                {/* Page Number Buttons */}
-                {Array.from({ length: totalPages }, (_, index) => {
-                  const pageNumber = index + 1;
-                  return (
-                    <Button
-                      key={pageNumber}
-                      onClick={() => setCurrentPage(pageNumber)}
-                      className={`px-3 py-2 rounded-md ${
-                        currentPage === pageNumber
-                          ? "bg-black text-white"
-                          : "bg-green-500 text-black"
-                      }`}
-                    >
-                      {pageNumber}
-                    </Button>
-                  );
-                })}
-
-                {/* Next Button */}
-                <Button
-                  className={`px-4 py-2 rounded-md ${
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "bg-blue-500 text-white"
-                  }`}
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
+            </Modal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
+              {tasks.map((task) => (
+                <Cards className={"bg-white"} key={task.id}>
+                  <h1 className="text-lg font-semibold">
+                    Task Title: {task.name}
+                  </h1>
+                  <h1 className="text-lg font-semibold">
+                    Task Description: {task.task}
+                  </h1>
+                  <h1 className="text-lg font-semibold">
+                    Status: {task.status}
+                  </h1>
 
-      {loading && <h2 className="text-white">Loading...</h2>}
-      {message && <h2 className="text-white">{message}</h2>}
-    </div>
+                  <div className="flex gap-3 mt-4 justify-center">
+                    <Button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => openModalForUpdate(task)}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => openDeleteModal(task.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </Cards>
+              ))}
+            </div>
+            {tasks.length > 0 && totalPages > 1 && (
+              <div className="flex flex-col self-center lg:items-end mt-4">
+                <div className="flex gap-2 mt-6">
+                  {/* Previous Button */}
+                  <Button
+                    className={`px-4 py-2 rounded-md ${
+                      currentPage === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "bg-blue-500 text-white"
+                    }`}
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+
+                  {/* Page Number Buttons */}
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNumber = index + 1;
+                    return (
+                      <Button
+                        key={pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className={`px-3 py-2 rounded-md ${
+                          currentPage === pageNumber
+                            ? "bg-black text-white"
+                            : "bg-green-500 text-black"
+                        }`}
+                      >
+                        {pageNumber}
+                      </Button>
+                    );
+                  })}
+
+                  {/* Next Button */}
+                  <Button
+                    className={`px-4 py-2 rounded-md ${
+                      currentPage === totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "bg-blue-500 text-white"
+                    }`}
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {loading && <h2 className="text-white">Loading...</h2>}
+        {message && <h2 className="text-white">{message}</h2>}
+      </div>
+    </>
   );
 };
 
