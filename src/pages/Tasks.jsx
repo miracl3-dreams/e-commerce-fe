@@ -35,6 +35,10 @@ const Tasks = () => {
     }
   }, [navigate, currentPage]);
 
+  useEffect(() => {
+    document.title = "Tasks - Task Management";
+  });
+
   const fetchTasks = async (page = 1, searchQuery = "", status = "") => {
     setLoading(true);
     try {

@@ -28,6 +28,10 @@ const Archive = () => {
     }
   }, [navigate, currentPage, status]);
 
+  useEffect(() => {
+    document.title = "Archive - Task Management";
+  });
+
   const fetchTrashedTasks = async (page = 1, searchQuery = "", status = "") => {
     setLoading(true);
     try {
