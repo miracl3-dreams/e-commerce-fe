@@ -28,7 +28,7 @@ const SignUp = () => {
   // Mutation for registration
   const registerMutation = useMutation({
     mutationFn: async (formData) => {
-      return axios.post("/api/v1/register", formData);
+      return axios.post("/register", formData);
     },
     onSuccess: () => {
       setFormData({
