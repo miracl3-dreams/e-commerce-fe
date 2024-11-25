@@ -1,70 +1,62 @@
-import React, { useEffect, useState } from "react";
-import Footer from "../../components/Footer";
-import { useNavigate } from "react-router-dom";
-import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../../components/Button";
-import { toast, Bounce } from "react-toastify";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { registerSchema } from "../../utils/validations/UserSchema";
-import backgroundImg from "../../assets/images/background-image.jpg";
-import Sonner from "../../components/Sonner";
 import axios from "../../utils/Axios";
+import backgroundImg from "../../assets/images/background-image.jpg";
+import Button from "../../components/Button";
+import Footer from "../../components/Footer";
 
-const SignUp = () => {
+const registerUser = async (data) => {
+  const response = await axios.post(
+    "http://127.0.0.1:8000/api/v1/register",
+    data
+  );
+  return response.data;
+};
+
+const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     password_confirmation: "",
   });
-  const [errors, setErrors] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-  });
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  // Mutation for registration
   const registerMutation = useMutation({
-    mutationFn: async (formData) => {
-      return axios.post("/register", formData);
-    },
+    mutationFn: registerUser,
     onSuccess: () => {
+      toast.success("Registration successful!", {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setFormData({
         name: "",
         email: "",
         password: "",
         password_confirmation: "",
       });
-      toast.success("Successfully Registered!", {
-        position: "top-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
-      setTimeout(() => navigate("/login"), 1500);
+      setErrors({});
+      navigate("/login");
     },
     onError: (error) => {
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message, {
+      if (error.name === "ZodError") {
+        const validationErrors = {};
+        error.errors.forEach((err) => {
+          validationErrors[err.path[0]] = err.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          "Registration failed. Please try again.";
+        toast.error(errorMessage, {
           position: "top-right",
           autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
         });
-      } else {
-        console.error("Registration Error:", error);
       }
     },
   });
@@ -72,167 +64,111 @@ const SignUp = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
-    if (value === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    }
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setErrors({ name: "", email: "", password: "", password_confirmation: "" });
-
-    if (formData.password !== formData.password_confirmation) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        password_confirmation: "Passwords do not match",
-      }));
-      return;
-    }
-
+    setErrors({});
     try {
-      // Validate form data with Zod
       registerSchema.parse(formData);
-
-      // Trigger the mutation
       registerMutation.mutate(formData);
     } catch (error) {
       if (error.name === "ZodError") {
-        const newErrors = {};
+        const validationErrors = {};
         error.errors.forEach((err) => {
-          newErrors[err.path[0]] = err.message;
+          validationErrors[err.path[0]] = err.message;
         });
-        setErrors(newErrors);
+        setErrors(validationErrors);
       }
     }
   };
 
   useEffect(() => {
     document.title = "Sign Up - Task Management";
-  });
+  }, []);
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <div
-        className="bg-cover bg-bottom flex flex-col justify-between min-h-screen"
+        className="bg-white bg-cover bg-bottom flex justify-center items-center flex-1"
         style={{ backgroundImage: `url(${backgroundImg})` }}
       >
-        <div className="flex flex-grow justify-center items-center">
-          <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%]">
-            <h1 className="font-poppins text-2xl font-bold text-center mb-5">
-              Task Management
-            </h1>
-            <form
-              className="flex flex-col gap-4"
-              onSubmit={handleSubmit}
-              autoComplete="off"
-            >
-              <h2 className="font-poppins font-bold text-xl text-center">
-                Sign Up
-              </h2>
-
-              {/* Name Input */}
-              <div className="flex items-center gap-2">
-                <FaUser className="text-black" />
-                <input
-                  className={`flex-1 py-2 px-3 border rounded-md ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
-              )}
-
-              {/* Email Input */}
-              <div className="flex items-center gap-2">
-                <FaUser className="text-black" />
-                <input
-                  className={`flex-1 py-2 px-3 border rounded-md ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email Address"
-                  required
-                />
-              </div>
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
-              )}
-
-              {/* Password Input */}
-              <div className="flex items-center gap-2">
-                <FaLock className="text-black" />
-                <input
-                  className={`flex-1 py-2 px-3 border rounded-md ${
-                    errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Password"
-                  required
-                />
-              </div>
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
-
-              {/* Confirm Password Input */}
-              <div className="flex items-center gap-2">
-                <FaLock className="text-black" />
-                <input
-                  className={`flex-1 py-2 px-3 border rounded-md ${
-                    errors.password_confirmation
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  type="password"
-                  name="password_confirmation"
-                  value={formData.password_confirmation}
-                  onChange={handleChange}
-                  placeholder="Confirm Password"
-                  required
-                />
-              </div>
-              {errors.password_confirmation && (
-                <p className="text-sm text-red-500">
-                  {errors.password_confirmation}
-                </p>
-              )}
-
-              {/* Submit Button */}
-              <Button
-                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full py-2 mt-4"
-                disabled={registerMutation.isLoading}
-              >
-                {registerMutation.isLoading ? <Sonner /> : "Register"}
-              </Button>
-
-              {/* Redirect to Login */}
-              <p className="text-center text-sm mt-4">
-                Already have an account?{" "}
-                <a href="/login" className="text-blue-500 hover:underline">
-                  Log In
-                </a>
+        <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px]">
+          <h1 className="font-poppins text-2xl font-bold text-center mb-5">
+            Task Management
+          </h1>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <h2 className="font-poppins font-bold text-xl text-center">
+              Sign Up
+            </h2>
+            <input
+              className="flex-1 py-2 px-3 border rounded-md"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              required
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
+            <input
+              className="flex-1 py-2 px-3 border rounded-md"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email Address"
+              required
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
+            <input
+              className="flex-1 py-2 px-3 border rounded-md"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              required
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
+            <input
+              className="flex-1 py-2 px-3 border rounded-md"
+              type="password"
+              name="password_confirmation"
+              value={formData.password_confirmation}
+              onChange={handleChange}
+              placeholder="Confirm Password"
+              required
+            />
+            {errors.password_confirmation && (
+              <p className="text-red-500 text-sm">
+                {errors.password_confirmation}
               </p>
-            </form>
-          </div>
+            )}
+            <Button
+              className="bg-blue-400 text-white font-semibold py-2 px-4 rounded-md shadow-md hover:bg-blue-600 transition"
+              type="submit"
+              disabled={registerMutation.isLoading}
+            >
+              {registerMutation.isLoading ? "Signing Up..." : "Sign Up"}
+            </Button>
+            <p className="text-center text-sm mt-4">
+              Already have an account?{" "}
+              <Link className="text-blue-500 hover:underline" to={"/login"}>
+                Log In
+              </Link>
+            </p>
+          </form>
         </div>
-        <Footer />
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 
-export default SignUp;
+export default Signup;

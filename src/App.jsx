@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NavigationBar from "./components/NavigationBar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks/Tasks";
@@ -14,14 +12,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Archive from "./pages/Archive/Archive.jsx";
 import Test from "./pages/test/Test";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
 function App() {
-  useEffect(() => {
-    document.title = "Task Management";
-  }, []);
-
   return (
     <>
       <QueryClientProvider client={queryClient}>

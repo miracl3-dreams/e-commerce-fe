@@ -24,7 +24,7 @@ const Login = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (formData) => {
-      return axios.post("/api/v1/login", formData);
+      return axios.post("http://127.0.0.1:8000/api/v1/login", formData);
     },
     onSuccess: (response) => {
       const data = response.data;
