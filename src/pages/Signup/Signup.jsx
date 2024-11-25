@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button";
-import axios from "../components/axios";
+import Button from "../../components/Button";
+import axios from "../../components/axios";
 import { toast, Bounce } from "react-toastify";
-import { registerSchema } from "../utils/validations/UserSchema";
-import backgroundImg from "../assets/images/background-image.jpg";
-import Sonner from "../components/Sonner";
+import { registerSchema } from "../../utils/validations/UserSchema";
+// import backgroundImg from "../assets/images/background-image.jpg";
+import Sonner from "../../components/Sonner";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -93,7 +93,7 @@ const SignUp = () => {
   return (
     <>
       <div
-        className="bg-white bg-cover bg-bottom flex flex-col justify-between min-h-screen"
+        className="bg-cover bg-bottom flex flex-col justify-between min-h-screen"
         style={{ backgroundImage: `url(${backgroundImg})` }}
       >
         <div className="flex flex-grow justify-center items-center">

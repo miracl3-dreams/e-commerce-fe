@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
-import Button from "../components/Button";
-import axios from "../components/axios";
+import Button from "../../components/Button";
+import axios from "../../components/axios";
 import { toast, Bounce } from "react-toastify";
-import { loginSchema } from "../utils/validations/UserSchema";
-import backgroundImg from "../assets/images/background-image.jpg";
-import Sonner from "../components/Sonner";
+import { loginSchema } from "../../utils/validations/UserSchema";
+// import backgroundImg from "../assets/images/background-image.jpg";
+import Sonner from "../../components/Sonner";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });

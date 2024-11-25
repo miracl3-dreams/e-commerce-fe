@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Cards from "../components/Cards";
-import Button from "../components/Button";
-import Modal from "../components/Modal";
+import Cards from "../../components/Cards";
+import Button from "../../components/Button";
+import Modal from "../../components/Modal";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
@@ -262,7 +262,7 @@ const Tasks = () => {
         </h1>
 
         <div className="flex flex-col items-center gap-5 w-full">
-          <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+          <div className="bg-blue-500 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
             {/* // Controls for Creating and Searching Tasks // */}
             <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
               <div className="flex items-center gap-x-2">
@@ -285,7 +285,7 @@ const Tasks = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-md"
                   onClick={handleSearch}
                 >
                   Search

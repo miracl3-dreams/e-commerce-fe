@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
+import Button from "../../components/Button";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
 
@@ -256,14 +256,14 @@ const Archive = () => {
         </h1>
 
         <div className="flex flex-col items-center gap-5 w-full">
-          <div className="bg-[#D72323] absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+          <div className="bg-blue-500 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
             <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
               <div className="flex items-center gap-x-2">
                 {selectedTasks.length > 0 && (
                   <>
                     <button
                       onClick={restoreSelectedTasks}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                      className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
                       disabled={selectedTasks.length === 0}
                     >
                       Restore Selected
@@ -287,7 +287,7 @@ const Archive = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-md"
                   onClick={handleSearch}
                 >
                   Search

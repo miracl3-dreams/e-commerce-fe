@@ -77,7 +77,7 @@ const NavigationBar = () => {
   return (
     <div>
       {/* Desktop Navigation */}
-      <nav className="bg-[#D72323] flex justify-between items-center px-5 py-5 text-white">
+      <nav className="bg-blue-500 flex justify-between items-center px-5 py-5 text-white">
         <Link to={"/dashboard"} className="text-3xl font-bold">
           Task Management
         </Link>
