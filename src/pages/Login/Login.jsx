@@ -3,16 +3,16 @@ import Footer from "../../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../../components/Button";
-import axios from "../../components/axios";
+import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
 import { loginSchema } from "../../utils/validations/UserSchema";
 import backgroundImg from "../../assets/images/background-image.jpg";
 import Sonner from "../../components/Sonner";
+import { useMutation } from "@tanstack/react-query";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,32 +22,32 @@ const Login = () => {
     }
   }, [navigate]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (value === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrors({ email: "", password: "" });
-
-    try {
-      loginSchema.parse(formData);
-
-      const response = await axios.post("/api/v1/login", formData);
-
-      if (response.status === 200) {
-        const data = response.data;
-        localStorage.setItem("authToken", data.data.token);
-        localStorage.setItem("userName", data.data.user.name);
-        localStorage.setItem("userEmail", data.data.user.email);
-        setFormData({ email: "", password: "" });
-        toast.success("Successfully Login!", {
+  const loginMutation = useMutation({
+    mutationFn: async (formData) => {
+      return axios.post("/api/v1/login", formData);
+    },
+    onSuccess: (response) => {
+      const data = response.data;
+      localStorage.setItem("authToken", data.data.token);
+      localStorage.setItem("userName", data.data.user.name);
+      localStorage.setItem("userEmail", data.data.user.email);
+      setFormData({ email: "", password: "" });
+      toast.success("Successfully Logged In!", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      navigate("/dashboard");
+    },
+    onError: (error) => {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message, {
           position: "top-right",
           autoClose: 1500,
           hideProgressBar: false,
@@ -58,8 +58,25 @@ const Login = () => {
           theme: "light",
           transition: Bounce,
         });
-        navigate("/dashboard");
       }
+    },
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (value === "") {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setErrors({ email: "", password: "" });
+
+    try {
+      loginSchema.parse(formData);
+      loginMutation.mutate(formData);
     } catch (error) {
       if (error.name === "ZodError") {
         const newErrors = {};
@@ -67,11 +84,7 @@ const Login = () => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
-      } else {
-        console.log(error);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -125,9 +138,9 @@ const Login = () => {
             <Button
               className="bg-blue-400 text-white font-semibold py-2 px-4 rounded-md shadow-md hover:bg-blue-600 transition"
               type="submit"
-              disabled={loading}
+              disabled={loginMutation.isLoading}
             >
-              {loading ? <Sonner /> : "Log In"}{" "}
+              {loginMutation.isLoading ? <Sonner /> : "Log In"}
             </Button>
             <p className="text-center text-sm mt-4">
               Don't have an account?{" "}

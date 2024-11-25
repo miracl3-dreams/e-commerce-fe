@@ -6,7 +6,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { RxCross2 } from "react-icons/rx";
 import IconProfile from "./IconProfile";
 import Cards from "./Cards";
-import axios from "../components/axios";
+import axios from "../utils/Axios";
 import { toast, Bounce } from "react-toastify";
 
 const NavigationBar = () => {
@@ -129,7 +129,7 @@ const NavigationBar = () => {
         </button>
 
         {mobileView && (
-          <ul className="fixed left-0 top-0 z-10 bg-[#D72323] flex flex-col items-center gap-5 px-5 pt-10 h-[100vh] text-white font-bold">
+          <ul className="fixed left-0 top-0 z-10 bg-blue-500 flex flex-col items-center gap-5 px-5 pt-10 h-[100vh] text-white font-bold">
             <li>
               <Link onClick={handleHamburgerButton} to={"tasks"}>
                 Tasks

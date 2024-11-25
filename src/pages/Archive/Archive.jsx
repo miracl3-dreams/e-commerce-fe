@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
-import axios from "axios";
+import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
 
 const Archive = () => {

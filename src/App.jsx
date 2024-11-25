@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NavigationBar from "./components/NavigationBar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks/Tasks";
@@ -14,6 +15,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Archive from "./pages/Archive/Archive.jsx";
 import Test from "./pages/test/Test";
 
+const queryClient = new QueryClient();
+
 function App() {
   useEffect(() => {
     document.title = "Task Management";
@@ -21,23 +24,25 @@ function App() {
 
   return (
     <>
-      <ToastContainer />
-      <Routes>
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/test" element={<Test />} />
-        <Route
-          path="/dashboard"
-          element={<AuthRoute element={NavigationBar} />}
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="list" element={<List />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="tasks/archive" element={<Archive />} />
-        </Route>
-      </Routes>
+      <QueryClientProvider client={queryClient}>
+        <ToastContainer />
+        <Routes>
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/test" element={<Test />} />
+          <Route
+            path="/dashboard"
+            element={<AuthRoute element={NavigationBar} />}
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="list" element={<List />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="tasks/archive" element={<Archive />} />
+          </Route>
+        </Routes>
+      </QueryClientProvider>
     </>
   );
 }

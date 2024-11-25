@@ -3,11 +3,12 @@ import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../../components/Button";
-import axios from "../../components/axios";
 import { toast, Bounce } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
 import { registerSchema } from "../../utils/validations/UserSchema";
 import backgroundImg from "../../assets/images/background-image.jpg";
 import Sonner from "../../components/Sonner";
+import axios from "../../utils/Axios";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -22,37 +23,14 @@ const SignUp = () => {
     password: "",
     password_confirmation: "",
   });
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (value === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrors({ name: "", email: "", password: "", password_confirmation: "" });
-
-    if (formData.password !== formData.password_confirmation) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        password_confirmation: "Passwords do not match",
-      }));
-      setLoading(false);
-      return;
-    }
-
-    try {
-      registerSchema.parse(formData);
-
-      await axios.post("/api/v1/register", formData);
-
+  // Mutation for registration
+  const registerMutation = useMutation({
+    mutationFn: async (formData) => {
+      return axios.post("/api/v1/register", formData);
+    },
+    onSuccess: () => {
       setFormData({
         name: "",
         email: "",
@@ -71,6 +49,53 @@ const SignUp = () => {
         transition: Bounce,
       });
       setTimeout(() => navigate("/login"), 1500);
+    },
+    onError: (error) => {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else {
+        console.error("Registration Error:", error);
+      }
+    },
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (value === "") {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({ name: "", email: "", password: "", password_confirmation: "" });
+
+    if (formData.password !== formData.password_confirmation) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password_confirmation: "Passwords do not match",
+      }));
+      return;
+    }
+
+    try {
+      // Validate form data with Zod
+      registerSchema.parse(formData);
+
+      // Trigger the mutation
+      registerMutation.mutate(formData);
     } catch (error) {
       if (error.name === "ZodError") {
         const newErrors = {};
@@ -78,11 +103,7 @@ const SignUp = () => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
-      } else {
-        console.error("Registration Error:", error);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -193,10 +214,9 @@ const SignUp = () => {
               {/* Submit Button */}
               <Button
                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-full py-2 mt-4"
-                onClick={handleSubmit}
-                disabled={loading}
+                disabled={registerMutation.isLoading}
               >
-                {loading ? <Sonner /> : "Register"}
+                {registerMutation.isLoading ? <Sonner /> : "Register"}
               </Button>
 
               {/* Redirect to Login */}

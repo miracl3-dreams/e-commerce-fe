@@ -4,7 +4,7 @@ import Cards from "../../components/Cards";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import { IoMdClose } from "react-icons/io";
-import axios from "axios";
+import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
 
 const Tasks = () => {
