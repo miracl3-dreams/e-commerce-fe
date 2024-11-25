@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import axios from "../../components/axios";
 import { toast, Bounce } from "react-toastify";
 import { loginSchema } from "../../utils/validations/UserSchema";
-// import backgroundImg from "../assets/images/background-image.jpg";
+import backgroundImg from "../../assets/images/background-image.jpg";
 import Sonner from "../../components/Sonner";
 
 const Login = () => {

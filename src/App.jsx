@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import NavigationBar from "./components/NavigationBar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks/Tasks";
-import List from "./pages/List";
+import List from "./pages/List/List";
 import Contact from "./pages/Contact/Contact";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/Signup/Signup";
