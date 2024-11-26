@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Await, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
@@ -142,6 +142,37 @@ const Archive = () => {
         : [...prevSelectedTasks, taskId]
     );
   };
+
+  const handleSelectAllChange = async (e) => {
+    if (e.target.checked && trashedTasks?.data) {
+      const allTaskIds = [];
+      for (let i = 1; i <= trashedTasks.last_page; i++) {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/v1/task/trashed`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            params: {
+              page: i,
+              per_page: trashedTasksPerPage,
+              query: searchQuery,
+              status: status,
+            },
+          }
+        );
+        const pageData = response.data?.data?.data || [];
+        allTaskIds.push(...pageData.map((task) => task.id));
+      }
+      setSelectedTasks(allTaskIds);
+    } else {
+      setSelectedTasks([]);
+    }
+  };
+
+  const isAllSelected =
+    trashedTasks?.data?.length > 0 &&
+    trashedTasks.data.every((task) => selectedTasks.includes(task.id));
 
   const renderPagination = () => {
     if (trashedTasks.last_page <= 1) return null;
@@ -303,16 +334,10 @@ const Archive = () => {
                     <td className="text-center px-4 py-2">
                       <input
                         type="checkbox"
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTasks(
-                              trashedTasks.data.map((task) => task.id)
-                            );
-                          } else {
-                            setSelectedTasks([]);
-                          }
-                        }}
+                        onChange={handleSelectAllChange}
+                        checked={isAllSelected}
                       />
+                      Select All
                     </td>
                     <th className="text-center px-4 py-2">Task Title</th>
                     <th className="text-center px-4 py-2">Task Description</th>
