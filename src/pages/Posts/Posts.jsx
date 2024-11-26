@@ -6,6 +6,8 @@ const Posts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [commentVisibility, setCommentVisibility] = useState({});
+  const [newPost, setNewPost] = useState({ title: "", body: "" });
+  const [newComment, setNewComment] = useState({ body: "", postId: null });
   const [navigate, setNavigate] = useState();
 
   useEffect(() => {
@@ -33,7 +35,39 @@ const Posts = () => {
     }));
   };
 
-  const renderComments = (comments, postId) => {
+  const handleNewPostSubmit = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/v1/posts",
+        newPost
+      );
+      setPosts([response.data.data, ...posts]);
+      setNewPost({ title: "", body: "" });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create a new post.");
+    }
+  };
+
+  const handleNewCommentSubmit = async (postId) => {
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/v1/posts/${postId}/comments`,
+        { body: newComment.body }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, response.data.data] }
+            : post
+        )
+      );
+      setNewComment({ body: "", postId: null });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add a comment.");
+    }
+  };
+
+  const renderComments = (comments = [], postId) => {
     const visibleCount = commentVisibility[postId] || 1;
     const visibleComments = comments.slice(0, visibleCount);
 
@@ -44,17 +78,9 @@ const Posts = () => {
             key={comment.id}
             className="flex items-start space-x-4 border-t border-gray-200 pt-4"
           >
-            {/* <img
-              src={comment.user?.avatar || "https://via.placeholder.com/40"}
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full"
-            /> */}
             <div>
               <div className="flex items-center space-x-2">
                 <strong>{comment.user?.name || "Anonymous"}</strong>
-                {/* <span className="text-gray-500 text-sm">
-                  {comment.created_at}
-                </span> */}
               </div>
               <p className="text-gray-800">{comment.body}</p>
               <div className="flex space-x-4 mt-2 text-sm text-blue-600">
@@ -84,6 +110,34 @@ const Posts = () => {
       <h1 className="text-2xl font-bold flex justify-center text-gray-800 mb-6">
         Posts
       </h1>
+
+      {/* Create Post */}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="flex justify-between">
+          <input></input>
+        </div>
+        <h2 className="text-lg font-bold mb-4">Create New Post</h2>
+        <input
+          type="text"
+          placeholder="Title"
+          className="w-full border p-2 mb-4"
+          value={newPost.title}
+          onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+        />
+        <textarea
+          placeholder="Body"
+          className="w-full border p-2 mb-4"
+          value={newPost.body}
+          onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+        />
+        <button
+          onClick={handleNewPostSubmit}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Create Post
+        </button>
+      </div>
+
       {posts.length > 0 ? (
         <div className="space-y-6">
           {posts.map((post) => (
@@ -95,11 +149,29 @@ const Posts = () => {
               <p className="text-gray-700 mt-2">{post.body}</p>
               <h3 className="text-lg font-semibold mt-4">Comments:</h3>
               <div className="mt-2 space-y-4">
-                {post.comments.length > 0 ? (
+                {post.comments?.length > 0 ? (
                   renderComments(post.comments, post.id)
                 ) : (
                   <p className="text-gray-500">No comments yet.</p>
                 )}
+              </div>
+
+              {/* Add Comment */}
+              <div className="mt-4">
+                <textarea
+                  placeholder="Write a comment..."
+                  className="w-full border p-2 mb-2"
+                  value={newComment.postId === post.id ? newComment.body : ""}
+                  onChange={(e) =>
+                    setNewComment({ body: e.target.value, postId: post.id })
+                  }
+                />
+                <button
+                  onClick={() => handleNewCommentSubmit(post.id)}
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                  Add Comment
+                </button>
               </div>
             </div>
           ))}

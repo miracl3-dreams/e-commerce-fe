@@ -408,7 +408,7 @@ const Archive = () => {
             <div className="flex justify-center w-full gap-3 mt-5">
               {/* Previous Button */}
               <Button
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                className="bg-gray-700 text-white px-4 py-2 rounded-md"
                 onClick={() => {
                   const prevPage = Math.max(trashedTasks.current_page - 1, 1);
                   fetchTrashedTasks(prevPage);
@@ -425,7 +425,7 @@ const Archive = () => {
 
               {/* Next Button */}
               <Button
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                className="bg-gray-700 text-white px-4 py-2 rounded-md"
                 onClick={() => {
                   const nextPage = Math.min(
                     trashedTasks.current_page + 1,

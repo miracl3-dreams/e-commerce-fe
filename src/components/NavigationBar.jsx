@@ -136,8 +136,8 @@ const NavigationBar = () => {
               </Link>
             </li>
             <li>
-              <Link onClick={handleHamburgerButton} to={"list"}>
-                List
+              <Link onClick={handleHamburgerButton} to={"posts"}>
+                Posts
               </Link>
             </li>
             <li>
