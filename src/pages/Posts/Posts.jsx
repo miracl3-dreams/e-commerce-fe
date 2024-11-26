@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/Axios";
 
-const List = () => {
+const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -115,4 +115,4 @@ const List = () => {
   );
 };
 
-export default List;
+export default Posts;

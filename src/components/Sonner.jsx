@@ -1,16 +1,24 @@
+// import React from "react";
+
+// const Sonner = () => {
+//   return (
+//     <div className="flex justify-center items-center">
+//       <div
+//         className="animate-spin border-t-4 border-green-500 border-solid w-6 h-6 rounded-full"
+//         style={{
+//           borderTopColor: "#38a169",
+//         }}
+//       ></div>
+//     </div>
+//   );
+// };
+
+// export default Sonner;
+
 import React from "react";
 
-const Sooner = () => {
-  return (
-    <div className="flex justify-center items-center">
-      <div
-        className="animate-spin border-t-8 border-green-700 border-solid w-5 h-5 rounded-md"
-        style={{
-          borderTopColor: "#38a169",
-        }}
-      ></div>
-    </div>
-  );
+const Sonner = () => {
+  return <div>Sonner</div>;
 };
 
-export default Sooner;
+export default Sonner;

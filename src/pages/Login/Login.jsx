@@ -3,17 +3,19 @@ import Footer from "../../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock, FaUser } from "react-icons/fa";
 import Button from "../../components/Button";
+import Loading from "../../components/Loading";
 import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
 import { loginSchema } from "../../utils/validations/UserSchema";
 import backgroundImg from "../../assets/images/background-image.jpg";
-import Sonner from "../../components/Sonner";
 import { useMutation } from "@tanstack/react-query";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const [cooldown, setCooldown] = useState(false);
+  const [loadingDelay, setLoadingDelay] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -27,29 +29,47 @@ const Login = () => {
       return axios.post("http://127.0.0.1:8000/api/v1/login", formData);
     },
     onSuccess: (response) => {
+      setLoadingDelay(true);
       const data = response.data;
-      localStorage.setItem("authToken", data.data.token);
-      localStorage.setItem("userName", data.data.user.name);
-      localStorage.setItem("userEmail", data.data.user.email);
-      setFormData({ email: "", password: "" });
-      toast.success("Successfully Logged In!", {
-        position: "top-right",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
-      navigate("/dashboard");
-    },
-    onError: (error) => {
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message, {
+
+      setTimeout(() => {
+        setLoadingDelay(false);
+        localStorage.setItem("authToken", data.data.token);
+        localStorage.setItem("userName", data.data.user.name);
+        localStorage.setItem("userEmail", data.data.user.email);
+        setFormData({ email: "", password: "" });
+
+        toast.success("Successfully Logged In!", {
           position: "top-right",
           autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        navigate("/dashboard");
+      }, 5000);
+    },
+    onError: (error) => {
+      if (error.response?.status === 429) {
+        toast.error("Too many login attempts. Please try again later.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -61,6 +81,11 @@ const Login = () => {
       }
     },
   });
+
+  const handleThrottle = () => {
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 60000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,6 +102,7 @@ const Login = () => {
     try {
       loginSchema.parse(formData);
       loginMutation.mutate(formData);
+      handleThrottle();
     } catch (error) {
       if (error.name === "ZodError") {
         const newErrors = {};
@@ -138,9 +164,9 @@ const Login = () => {
             <Button
               className="bg-blue-400 text-white font-semibold py-2 px-4 rounded-md shadow-md hover:bg-blue-600 transition"
               type="submit"
-              disabled={loginMutation.isLoading}
+              disabled={loginMutation.isLoading || loadingDelay || cooldown}
             >
-              {loginMutation.isLoading ? <Sonner /> : "Log In"}
+              {loginMutation.isLoading || loadingDelay ? <Loading /> : "Log In"}
             </Button>
             <p className="text-center text-sm mt-4">
               Don't have an account?{" "}

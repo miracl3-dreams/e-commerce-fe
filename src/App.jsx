@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import NavigationBar from "./components/NavigationBar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks/Tasks";
-import List from "./pages/List/List";
+import Posts from "./pages/Posts/Posts";
 import Contact from "./pages/Contact/Contact";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/Signup/Signup";
@@ -32,7 +32,7 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="tasks" element={<Tasks />} />
-            <Route path="list" element={<List />} />
+            <Route path="posts" element={<Posts />} />
             <Route path="contact" element={<Contact />} />
             <Route path="tasks/archive" element={<Archive />} />
           </Route>

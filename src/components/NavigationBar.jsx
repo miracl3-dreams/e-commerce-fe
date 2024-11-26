@@ -86,7 +86,7 @@ const NavigationBar = () => {
             <Link to={"tasks"}>Tasks</Link>
           </li>
           <li>
-            <Link to={"list"}>List</Link>
+            <Link to={"posts"}>Posts</Link>
           </li>
           <li>
             <Link to={"contact"}>Contact</Link>
