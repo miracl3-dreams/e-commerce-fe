@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Cards from "../../components/Cards";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import axios from "../../utils/Axios";
@@ -120,6 +121,10 @@ const PostsAndComments = () => {
     }
   };
 
+  useEffect(() => {
+    document.title = "Posts and Comments - Task Management";
+  });
+
   return (
     <div className="bg-white relative flex flex-col items-center h-full w-full">
       <h1 className="font-poppins font-bold text-3xl text-black py-8">
@@ -142,7 +147,11 @@ const PostsAndComments = () => {
           Posts
         </h2>
         {loadingPosts ? (
-          <p>Loading posts...</p>
+          <div>
+            <Cards className="bg-blue-500 flex justify-center">
+              <p>Loading posts...</p>
+            </Cards>
+          </div>
         ) : posts.length > 0 ? (
           posts.map((post) => (
             <div key={post.id} className="bg-blue-300 p-4 rounded-md mb-4">
@@ -163,20 +172,24 @@ const PostsAndComments = () => {
               <div className="w-full mt-4">
                 {comments
                   .filter((comment) => comment.post_id === post.id)
-                  .slice(0, showAllComments[post.id] ? undefined : 1)
-                  .map((comment) => (
-                    <div
-                      key={comment.id}
-                      className="flex bg-gray-200 p-3 rounded-md mb-3"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-semibold">
-                          {comment.username || "Example User"}
-                        </h4>
-                        <p>{comment.body}</p>
+                  .slice(0, showAllComments[post.id] ? undefined : 10)
+                  .map((comment) => {
+                    // Log the comment's unique key (post.id + comment.id)
+                    console.log(`Comment Key: ${post.id}-${comment.id}`);
+                    return (
+                      <div
+                        key={`${post.id}-${comment.id}`} // Unique key combining post and comment id
+                        className="flex bg-gray-200 p-3 rounded-md mb-3"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-semibold">
+                            {comment.username || "Example User"}
+                          </h4>
+                          <p>{comment.body}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
 
               {/* Show more comments button */}
@@ -215,7 +228,11 @@ const PostsAndComments = () => {
             </div>
           ))
         ) : (
-          <p>No posts available.</p>
+          <div>
+            <Cards className="bg-blue-500 flex justify-center">
+              <p>No posts available.</p>
+            </Cards>
+          </div>
         )}
 
         {/* Pagination Controls */}
