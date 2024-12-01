@@ -26,6 +26,12 @@ const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
+  const getAuthHeaders = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    },
+  });
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -43,9 +49,7 @@ const Tasks = () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/v1/tasks`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
+        headers: getAuthHeaders(),
         params: {
           page,
           per_page: tasksPerPage,

@@ -15,12 +15,15 @@ const PostsAndComments = () => {
   const [showAllComments, setShowAllComments] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
 
-  const postsPerPage = 1;
-
   useEffect(() => {
     fetchPosts();
-    fetchComments();
   }, [currentPage]);
+
+  const getAuthHeaders = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    },
+  });
 
   const fetchPosts = async () => {
     setLoadingPosts(true);
@@ -41,17 +44,22 @@ const PostsAndComments = () => {
   const fetchComments = async (postId) => {
     setLoadingComments(true);
     try {
-      const response = await axios.get(`/api/v1/posts/${postId}/comments`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
+      const response = await axios.get(
+        `/api/v1/posts/${postId}/comments`,
+        getAuthHeaders()
+      );
+      setComments((prev) => {
+        const updatedComments = Array.isArray(prev) ? prev : [];
+        return [
+          ...updatedComments.filter((comment) => comment.post_id !== postId),
+          ...(response.data?.data?.data || []),
+        ];
       });
-      setComments((prevComments) => [
-        ...prevComments.filter((comment) => comment.post_id !== postId),
-        ...(response.data?.data?.data || []),
-      ]);
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      console.error(
+        "Error fetching comments:",
+        error.response?.data || error.message
+      );
     } finally {
       setLoadingComments(false);
     }
@@ -59,16 +67,15 @@ const PostsAndComments = () => {
 
   const handleCreatePost = async () => {
     try {
-      await axios.post("/api/v1/posts", postFormData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
+      await axios.post("/api/v1/posts", postFormData, getAuthHeaders());
       setPostFormData({ title: "", body: "" });
       setIsPostModalOpen(false);
       fetchPosts();
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error(
+        "Error creating post:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -81,9 +88,7 @@ const PostsAndComments = () => {
     try {
       await axios.post(
         `/api/v1/posts/${postId}/comments`,
-        {
-          body: commentFormData.comment,
-        },
+        { body: commentFormData.comment },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -91,39 +96,27 @@ const PostsAndComments = () => {
         }
       );
       setCommentFormData({});
-      fetchComments();
+      fetchComments(postId);
     } catch (error) {
       console.error("Error creating comment:", error);
     }
   };
 
   const handleShowCommentForm = (postId) => {
-    setCommentFormData((prevData) => ({
-      ...prevData,
-      post_id: postId,
-    }));
+    setCommentFormData((prev) => ({ ...prev, post_id: postId }));
   };
 
   const handleToggleComments = (postId) => {
-    setShowAllComments((prevState) => ({
-      ...prevState,
-      [postId]: !prevState[postId],
-    }));
+    setShowAllComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  const handleNextPost = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
-  };
-
-  const handlePrevPost = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
+  const handlePagination = (direction) => {
+    setCurrentPage((prev) => prev + direction);
   };
 
   useEffect(() => {
     document.title = "Posts and Comments - Task Management";
-  });
+  }, []);
 
   return (
     <div className="bg-white relative flex flex-col items-center h-full w-full">
@@ -131,7 +124,6 @@ const PostsAndComments = () => {
         Posts and Comments
       </h1>
 
-      {/* Create Post Button Section */}
       <div className="flex justify-center w-full mb-4">
         <Button
           className="bg-green-500 px-6 py-3 rounded-md"
@@ -141,24 +133,19 @@ const PostsAndComments = () => {
         </Button>
       </div>
 
-      {/* Posts List Section */}
       <div className="w-full max-w-5xl">
         <h2 className="font-poppins text-2xl text-black py-4 flex justify-center">
           Posts
         </h2>
         {loadingPosts ? (
-          <div>
-            <Cards className="bg-blue-500 flex justify-center">
-              <p>Loading posts...</p>
-            </Cards>
-          </div>
+          <Cards className="bg-blue-500 flex justify-center">
+            <p>Loading posts...</p>
+          </Cards>
         ) : posts.length > 0 ? (
           posts.map((post) => (
             <div key={post.id} className="bg-blue-300 p-4 rounded-md mb-4">
               <h3 className="font-bold">{post.title}</h3>
               <p>{post.body}</p>
-
-              {/* Show comment creation form for this post */}
               <div className="flex justify-center">
                 <Button
                   className="bg-blue-500 px-4 py-2 rounded-md mt-4"
@@ -167,18 +154,14 @@ const PostsAndComments = () => {
                   Write a comment
                 </Button>
               </div>
-
-              {/* Comments List */}
               <div className="w-full mt-4">
-                {comments
-                  .filter((comment) => comment.post_id === post.id)
-                  .slice(0, showAllComments[post.id] ? undefined : 10)
-                  .map((comment) => {
-                    // Log the comment's unique key (post.id + comment.id)
-                    console.log(`Comment Key: ${post.id}-${comment.id}`);
-                    return (
+                {Array.isArray(comments) &&
+                  comments
+                    .filter((comment) => comment.post_id === post.id)
+                    .slice(0, showAllComments[post.id] ? undefined : 10)
+                    .map((comment) => (
                       <div
-                        key={`${post.id}-${comment.id}`} // Unique key combining post and comment id
+                        key={`${post.id}-${comment.id}`}
                         className="flex bg-gray-200 p-3 rounded-md mb-3"
                       >
                         <div className="flex-1">
@@ -188,22 +171,18 @@ const PostsAndComments = () => {
                           <p>{comment.body}</p>
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
               </div>
-
-              {/* Show more comments button */}
-              {comments.filter((comment) => comment.post_id === post.id)
-                .length > 5 && (
-                <Button
-                  className="bg-gray-500 px-4 py-2 rounded-md mt-4"
-                  onClick={() => handleToggleComments(post.id)}
-                >
-                  {showAllComments[post.id] ? "Show Less" : "Show More"}
-                </Button>
-              )}
-
-              {/* Comment Form */}
+              {Array.isArray(comments) &&
+                comments.filter((comment) => comment.post_id === post.id)
+                  .length > 5 && (
+                  <Button
+                    className="bg-gray-500 px-4 py-2 rounded-md mt-4"
+                    onClick={() => handleToggleComments(post.id)}
+                  >
+                    {showAllComments[post.id] ? "Show Less" : "Show More"}
+                  </Button>
+                )}
               {commentFormData.post_id === post.id && (
                 <div className="flex items-center mt-4 w-full">
                   <textarea
@@ -228,32 +207,27 @@ const PostsAndComments = () => {
             </div>
           ))
         ) : (
-          <div>
-            <Cards className="bg-blue-500 flex justify-center">
-              <p>No posts available.</p>
-            </Cards>
-          </div>
+          <Cards className="bg-blue-500 flex justify-center">
+            <p>No posts available.</p>
+          </Cards>
         )}
-
-        {/* Pagination Controls */}
         <div className="flex justify-center mt-6">
           <Button
             className="bg-gray-500 px-4 py-2 rounded-md"
-            onClick={handlePrevPost}
+            onClick={() => handlePagination(-1)}
             disabled={currentPage === 1}
           >
             Previous Post
           </Button>
           <Button
             className="bg-gray-500 px-4 py-2 rounded-md ml-4"
-            onClick={handleNextPost}
+            onClick={() => handlePagination(1)}
           >
             Next Post
           </Button>
         </div>
       </div>
 
-      {/* Post Creation Modal */}
       <Modal isOpen={isPostModalOpen} className="bg-slate-300">
         <h2 className="font-poppins font-bold text-xl">Create Post</h2>
         <input
@@ -278,7 +252,7 @@ const PostsAndComments = () => {
             className="bg-green-500 px-4 py-2 rounded-md mt-4"
             onClick={handleCreatePost}
           >
-            Save
+            Create Post
           </Button>
           <Button
             className="bg-red-500 px-4 py-2 rounded-md mt-4"
