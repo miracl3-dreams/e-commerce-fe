@@ -13,11 +13,10 @@ const PostsAndComments = () => {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   const [showAllComments, setShowAllComments] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage]);
+  }, []);
 
   const getAuthHeaders = () => ({
     headers: {
@@ -28,12 +27,8 @@ const PostsAndComments = () => {
   const fetchPosts = async () => {
     setLoadingPosts(true);
     try {
-      const response = await axios.get(`/api/v1/posts?page=${currentPage}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      setPosts(response.data?.data?.data || []);
+      const response = await axios.get(`/api/v1/posts`, getAuthHeaders());
+      setPosts(response.data?.data || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -52,14 +47,11 @@ const PostsAndComments = () => {
         const updatedComments = Array.isArray(prev) ? prev : [];
         return [
           ...updatedComments.filter((comment) => comment.post_id !== postId),
-          ...(response.data?.data?.data || []),
+          ...(response.data?.data || []),
         ];
       });
     } catch (error) {
-      console.error(
-        "Error fetching comments:",
-        error.response?.data || error.message
-      );
+      console.error("Error fetching comments:", error);
     } finally {
       setLoadingComments(false);
     }
@@ -89,11 +81,7 @@ const PostsAndComments = () => {
       await axios.post(
         `/api/v1/posts/${postId}/comments`,
         { body: commentFormData.comment },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
+        getAuthHeaders()
       );
       setCommentFormData({});
       fetchComments(postId);
@@ -110,10 +98,6 @@ const PostsAndComments = () => {
     setShowAllComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  const handlePagination = (direction) => {
-    setCurrentPage((prev) => prev + direction);
-  };
-
   useEffect(() => {
     document.title = "Posts and Comments - Task Management";
   }, []);
@@ -125,12 +109,14 @@ const PostsAndComments = () => {
       </h1>
 
       <div className="flex justify-center w-full mb-4">
-        <Button
-          className="bg-green-500 px-6 py-3 rounded-md"
-          onClick={() => setIsPostModalOpen(true)}
-        >
-          Create Post
-        </Button>
+        <Cards className="bg-blue-500 flex w-full justify-center">
+          <Button
+            className="bg-green-500 px-6 py-3 rounded-md"
+            onClick={() => setIsPostModalOpen(true)}
+          >
+            Create Post
+          </Button>
+        </Cards>
       </div>
 
       <div className="w-full max-w-5xl">
@@ -146,7 +132,7 @@ const PostsAndComments = () => {
             <div key={post.id} className="bg-blue-300 p-4 rounded-md mb-4">
               <h3 className="font-bold">{post.title}</h3>
               <p>{post.body}</p>
-              <div className="flex justify-center">
+              <div className="flex justify-start">
                 <Button
                   className="bg-blue-500 px-4 py-2 rounded-md mt-4"
                   onClick={() => handleShowCommentForm(post.id)}
@@ -155,10 +141,14 @@ const PostsAndComments = () => {
                 </Button>
               </div>
               <div className="w-full mt-4">
-                {Array.isArray(comments) &&
+                {loadingComments ? (
+                  <Cards className="bg-blue-500 flex justify-center">
+                    <p>Loading comments...</p>
+                  </Cards>
+                ) : (
                   comments
                     .filter((comment) => comment.post_id === post.id)
-                    .slice(0, showAllComments[post.id] ? undefined : 10)
+                    .slice(0, showAllComments[post.id] ? undefined : 1)
                     .map((comment) => (
                       <div
                         key={`${post.id}-${comment.id}`}
@@ -166,23 +156,23 @@ const PostsAndComments = () => {
                       >
                         <div className="flex-1">
                           <h4 className="font-semibold">
-                            {comment.username || "Example User"}
+                            {comment.username || "Anonymous"}
                           </h4>
                           <p>{comment.body}</p>
                         </div>
                       </div>
-                    ))}
-              </div>
-              {Array.isArray(comments) &&
-                comments.filter((comment) => comment.post_id === post.id)
-                  .length > 5 && (
-                  <Button
-                    className="bg-gray-500 px-4 py-2 rounded-md mt-4"
-                    onClick={() => handleToggleComments(post.id)}
-                  >
-                    {showAllComments[post.id] ? "Show Less" : "Show More"}
-                  </Button>
+                    ))
                 )}
+              </div>
+              {comments.filter((comment) => comment.post_id === post.id)
+                .length > 5 && (
+                <button
+                  className="text-blue-700 mt-2"
+                  onClick={() => handleToggleComments(post.id)}
+                >
+                  {showAllComments[post.id] ? "Show Less" : "Show More"}
+                </button>
+              )}
               {commentFormData.post_id === post.id && (
                 <div className="flex items-center mt-4 w-full">
                   <textarea
@@ -211,21 +201,6 @@ const PostsAndComments = () => {
             <p>No posts available.</p>
           </Cards>
         )}
-        <div className="flex justify-center mt-6">
-          <Button
-            className="bg-gray-500 px-4 py-2 rounded-md"
-            onClick={() => handlePagination(-1)}
-            disabled={currentPage === 1}
-          >
-            Previous Post
-          </Button>
-          <Button
-            className="bg-gray-500 px-4 py-2 rounded-md ml-4"
-            onClick={() => handlePagination(1)}
-          >
-            Next Post
-          </Button>
-        </div>
       </div>
 
       <Modal isOpen={isPostModalOpen} className="bg-slate-300">
