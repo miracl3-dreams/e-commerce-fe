@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import Cards from "../../components/Cards";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
@@ -13,9 +14,11 @@ const PostsAndComments = () => {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   const [showAllComments, setShowAllComments] = useState({});
+  const [page] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(1);
   }, []);
 
   const getAuthHeaders = () => ({
@@ -24,11 +27,19 @@ const PostsAndComments = () => {
     },
   });
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (pageNumber) => {
     setLoadingPosts(true);
     try {
-      const response = await axios.get(`/api/v1/posts`, getAuthHeaders());
-      setPosts(response.data?.data || []);
+      const response = await axios.get(
+        `/api/v1/posts?page=${pageNumber}`,
+        getAuthHeaders()
+      );
+      const newPosts = response.data?.data || [];
+      setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+
+      if (newPosts.length === 0 || newPosts.length < 10) {
+        setHasMorePosts(false);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -62,7 +73,8 @@ const PostsAndComments = () => {
       await axios.post("/api/v1/posts", postFormData, getAuthHeaders());
       setPostFormData({ title: "", body: "" });
       setIsPostModalOpen(false);
-      fetchPosts();
+      setPosts([]);
+      fetchPosts(1);
     } catch (error) {
       console.error(
         "Error creating post:",
@@ -123,84 +135,99 @@ const PostsAndComments = () => {
         <h2 className="font-poppins text-2xl text-black py-4 flex justify-center">
           Posts
         </h2>
-        {loadingPosts ? (
-          <Cards className="bg-blue-500 flex justify-center">
-            <p>Loading posts...</p>
-          </Cards>
-        ) : posts.length > 0 ? (
-          posts.map((post) => (
-            <div key={post.id} className="bg-blue-300 p-4 rounded-md mb-4">
-              <h3 className="font-bold">{post.title}</h3>
-              <p>{post.body}</p>
-              <div className="flex justify-start">
-                <Button
-                  className="bg-blue-500 px-4 py-2 rounded-md mt-4"
-                  onClick={() => handleShowCommentForm(post.id)}
-                >
-                  Write a comment
-                </Button>
-              </div>
-              <div className="w-full mt-4">
-                {loadingComments ? (
-                  <Cards className="bg-blue-500 flex justify-center">
-                    <p>Loading comments...</p>
-                  </Cards>
-                ) : (
-                  comments
-                    .filter((comment) => comment.post_id === post.id)
-                    .slice(0, showAllComments[post.id] ? undefined : 1)
-                    .map((comment) => (
-                      <div
-                        key={`${post.id}-${comment.id}`}
-                        className="flex bg-gray-200 p-3 rounded-md mb-3"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-semibold">
-                            {comment.username || "Anonymous"}
-                          </h4>
-                          <p>{comment.body}</p>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-              {comments.filter((comment) => comment.post_id === post.id)
-                .length > 5 && (
-                <button
-                  className="text-blue-700 mt-2"
-                  onClick={() => handleToggleComments(post.id)}
-                >
-                  {showAllComments[post.id] ? "Show Less" : "Show More"}
-                </button>
-              )}
-              {commentFormData.post_id === post.id && (
-                <div className="flex items-center mt-4 w-full">
-                  <textarea
-                    className="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Write a comment..."
-                    value={commentFormData.comment || ""}
-                    onChange={(e) =>
-                      setCommentFormData({
-                        ...commentFormData,
-                        comment: e.target.value,
-                      })
-                    }
-                  />
+        <InfiniteScroll
+          dataLength={posts.length}
+          next={() => fetchPosts(page + 1)}
+          hasMore={hasMorePosts}
+          loader={<h4>Loading...</h4>}
+          endMessage={
+            <p className="flex items-center justify-center">
+              No more posts available.
+            </p>
+          }
+        >
+          {loadingPosts ? (
+            <Cards className="bg-blue-500 flex justify-center">
+              <p>Loading posts...</p>
+            </Cards>
+          ) : posts.length > 0 ? (
+            posts.map((post, index) => (
+              <div
+                key={`${post.id}-${index}`}
+                className="bg-blue-300 p-4 rounded-md mb-4"
+              >
+                <h3 className="font-bold">{post.title}</h3>
+                <p>{post.body}</p>
+                <div className="flex justify-start">
                   <Button
-                    className="bg-green-500 px-4 py-2 rounded-md ml-3"
-                    onClick={() => handleCreateComment(post.id)}
+                    className="bg-blue-500 px-4 py-2 rounded-md mt-4"
+                    onClick={() => handleShowCommentForm(post.id)}
                   >
-                    Post Comment
+                    Write a comment
                   </Button>
                 </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <Cards className="bg-blue-500 flex justify-center">
-            <p>No posts available.</p>
-          </Cards>
-        )}
+                <div className="w-full mt-4">
+                  {loadingComments ? (
+                    <Cards className="bg-blue-500 flex justify-center">
+                      <p>Loading comments...</p>
+                    </Cards>
+                  ) : (
+                    comments
+                      .filter((comment) => comment.post_id === post.id)
+                      .slice(0, showAllComments[post.id] ? undefined : 5)
+                      .map((comment, index) => (
+                        <div
+                          key={`${post.id}-${comment.id}-${index}`}
+                          className="flex bg-gray-200 p-3 rounded-md mb-3"
+                        >
+                          <div className="flex-1">
+                            <h4 className="font-semibold">
+                              {comment.username || "Anonymous"}
+                            </h4>
+                            <p>{comment.body}</p>
+                          </div>
+                        </div>
+                      ))
+                  )}
+                </div>
+                {comments.filter((comment) => comment.post_id === post.id)
+                  .length > 5 && (
+                  <button
+                    className="text-blue-700 mt-2"
+                    onClick={() => handleToggleComments(post.id)}
+                  >
+                    {showAllComments[post.id] ? "Show Less" : "Show More"}
+                  </button>
+                )}
+                {commentFormData.post_id === post.id && (
+                  <div className="flex items-center mt-4 w-full">
+                    <textarea
+                      className="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Write a comment..."
+                      value={commentFormData.comment || ""}
+                      onChange={(e) =>
+                        setCommentFormData({
+                          ...commentFormData,
+                          comment: e.target.value,
+                        })
+                      }
+                    />
+                    <Button
+                      className="bg-green-500 px-4 py-2 rounded-md ml-3"
+                      onClick={() => handleCreateComment(post.id)}
+                    >
+                      Comment
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <Cards className="bg-blue-500 flex justify-center">
+              <p>No posts available.</p>
+            </Cards>
+          )}
+        </InfiniteScroll>
       </div>
 
       <Modal isOpen={isPostModalOpen} className="bg-slate-300">
