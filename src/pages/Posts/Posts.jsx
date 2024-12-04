@@ -14,11 +14,11 @@ const PostsAndComments = () => {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   const [showAllComments, setShowAllComments] = useState({});
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
   const [hasMorePosts, setHasMorePosts] = useState(true);
 
   useEffect(() => {
-    fetchPosts(1);
+    fetchPosts(page);
   }, []);
 
   const getAuthHeaders = () => ({
@@ -31,14 +31,19 @@ const PostsAndComments = () => {
     setLoadingPosts(true);
     try {
       const response = await axios.get(
-        `/api/v1/posts?page=${pageNumber}`,
+        `http://127.0.0.1:8000/api/v1/posts?page=${pageNumber}`,
         getAuthHeaders()
       );
+
+      console.log("API Response:", response.data);
+
       const newPosts = response.data?.data || [];
       setPosts((prevPosts) => [...prevPosts, ...newPosts]);
 
       if (newPosts.length === 0 || newPosts.length < 10) {
         setHasMorePosts(false);
+      } else {
+        setPage((prevPage) => prevPage + 1);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -51,7 +56,7 @@ const PostsAndComments = () => {
     setLoadingComments(true);
     try {
       const response = await axios.get(
-        `/api/v1/posts/${postId}/comments`,
+        `http://127.0.0.1:8000/api/v1/posts/${postId}/comments`,
         getAuthHeaders()
       );
       setComments((prev) => {
@@ -70,10 +75,16 @@ const PostsAndComments = () => {
 
   const handleCreatePost = async () => {
     try {
-      await axios.post("/api/v1/posts", postFormData, getAuthHeaders());
+      await axios.post(
+        "http://127.0.0.1:8000/api/v1/posts",
+        postFormData,
+        getAuthHeaders()
+      );
       setPostFormData({ title: "", body: "" });
       setIsPostModalOpen(false);
       setPosts([]);
+      setPage(1);
+      setHasMorePosts(true);
       fetchPosts(1);
     } catch (error) {
       console.error(
@@ -137,7 +148,7 @@ const PostsAndComments = () => {
         </h2>
         <InfiniteScroll
           dataLength={posts.length}
-          next={() => fetchPosts(page + 1)}
+          next={() => fetchPosts(page)}
           hasMore={hasMorePosts}
           loader={<h4>Loading...</h4>}
           endMessage={
