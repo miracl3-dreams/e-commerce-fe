@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
-import { FaLock, FaUser } from "react-icons/fa";
+import { FaLock, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import Button from "../../components/Button";
 import Loading from "../../components/Loading";
 import axios from "../../utils/Axios";
@@ -16,6 +16,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [cooldown, setCooldown] = useState(false);
   const [loadingDelay, setLoadingDelay] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -146,17 +147,27 @@ const Login = () => {
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative">
               <FaLock className="text-black" />
               <input
                 className="flex-1 py-2 px-3 border rounded-md"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Password"
                 required
               />
+              <div
+                className="absolute right-3 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <FaEye className="text-gray-500" />
+                ) : (
+                  <FaEyeSlash className="text-gray-500" />
+                )}
+              </div>
             </div>
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
