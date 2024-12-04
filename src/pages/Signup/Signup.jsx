@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { registerSchema } from "../../utils/validations/UserSchema";
@@ -8,6 +8,7 @@ import backgroundImg from "../../assets/images/background-image.jpg";
 import Button from "../../components/Button";
 import Footer from "../../components/Footer";
 
+// API call to register user
 const registerUser = async (data) => {
   const response = await axios.post(
     "http://127.0.0.1:8000/api/v1/register",
@@ -17,6 +18,7 @@ const registerUser = async (data) => {
 };
 
 const Signup = () => {
+  // State management
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,8 +26,10 @@ const Signup = () => {
     password_confirmation: "",
   });
   const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
 
+  // Mutation hook for registration
   const registerMutation = useMutation({
     mutationFn: registerUser,
     onSuccess: () => {
@@ -33,34 +37,13 @@ const Signup = () => {
         position: "top-right",
         autoClose: 1500,
       });
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-      });
-      setErrors({});
+      resetForm();
       navigate("/login");
     },
-    onError: (error) => {
-      if (error.name === "ZodError") {
-        const validationErrors = {};
-        error.errors.forEach((err) => {
-          validationErrors[err.path[0]] = err.message;
-        });
-        setErrors(validationErrors);
-      } else {
-        const errorMessage =
-          error.response?.data?.message ||
-          "Registration failed. Please try again.";
-        toast.error(errorMessage, {
-          position: "top-right",
-          autoClose: 1500,
-        });
-      }
-    },
+    onError: (error) => handleError(error),
   });
 
+  // Form handling
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -75,15 +58,38 @@ const Signup = () => {
       registerMutation.mutate(formData);
     } catch (error) {
       if (error.name === "ZodError") {
-        const validationErrors = {};
-        error.errors.forEach((err) => {
-          validationErrors[err.path[0]] = err.message;
-        });
+        const validationErrors = error.errors.reduce((acc, err) => {
+          acc[err.path[0]] = err.message;
+          return acc;
+        }, {});
         setErrors(validationErrors);
       }
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+    });
+    setErrors({});
+  };
+
+  const handleError = (error) => {
+    const errorMessage =
+      error.name === "ZodError"
+        ? "Validation failed."
+        : error.response?.data?.message ||
+          "Registration failed. Please try again.";
+    toast.error(errorMessage, {
+      position: "top-right",
+      autoClose: 1500,
+    });
+  };
+
+  // Set page title on load
   useEffect(() => {
     document.title = "Sign Up - Task Management";
   }, []);
