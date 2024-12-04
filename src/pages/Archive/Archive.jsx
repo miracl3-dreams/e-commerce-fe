@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Await, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
-import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import axios from "../../utils/Axios";
 
 const Archive = () => {
-  const [trashedTasks, setTrashedTasks] = useState({
+  // State hooks
+  const [Blank, setTrashedTasks] = useState({
     data: [],
     current_page: 1,
     last_page: 1,
@@ -17,64 +19,46 @@ const Archive = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [message, setMessage] = useState("");
+
+  // Routing & Authentication
   const navigate = useNavigate();
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
     if (!token) {
       navigate("/login");
-    } else {
-      fetchTrashedTasks(currentPage, searchQuery, status);
     }
-  }, [navigate, currentPage, status]);
+  }, [navigate, token]);
 
-  useEffect(() => {
-    document.title = "Archive - Task Management";
+  // Authentication headers
+  const getAuthHeaders = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    },
   });
 
-  const fetchTrashedTasks = async (page = 1, searchQuery = "", status = "") => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/v1/task/trashed`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          params: {
-            page,
-            per_page: trashedTasksPerPage,
-            query: searchQuery,
-            status: status,
-          },
-        }
-      );
-
-      console.log("API Response:", response.data);
-
-      if (response.data && response.data.data) {
-        setTrashedTasks({
-          data: response.data.data.data,
-          current_page: response.data.data.current_page,
-          last_page: response.data.data.last_page,
-        });
-        setMessage("");
-      } else {
-        setTrashedTasks({
-          data: [],
-          current_page: 1,
-          last_page: 1,
-        });
-        setMessage("No tasks found.");
+  // Fetch trashed tasks from API
+  const fetchTrashedTasks = async ({ page, query, status }) => {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/v1/task/trashed`,
+      {
+        headers: getAuthHeaders(),
+        params: { page, per_page: trashedTasksPerPage, query, status },
       }
-    } catch (error) {
-      setMessage("No tasks found.");
-      console.error("Error fetching trashed tasks:", error);
-    } finally {
-      setLoading(false);
-    }
+    );
+    return response.data.data;
   };
 
+  // React Query: Fetch trashed tasks
+  const { data: trashedTasks, refetch } = useQuery({
+    queryKey: ["trashedTasks", searchQuery],
+    queryFn: () =>
+      fetchTrashedTasks({ page: currentPage, query: searchQuery, status }),
+    keepPreviousData: true,
+    onError: () => toast.error("Error fetching trashed tasks."),
+  });
+
+  // Handle search
   const handleSearch = async () => {
     if (searchQuery.trim() === "") {
       setCurrentPage(1);
@@ -88,9 +72,7 @@ const Archive = () => {
       const response = await axios.get(
         `http://localhost:8000/api/v1/trashed-search`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
+          headers: getAuthHeaders(),
           params: {
             query: searchQuery,
             status: status.toLowerCase(),
@@ -108,11 +90,7 @@ const Archive = () => {
         last_page: data.last_page || 1,
       });
 
-      if (trashedTasks.length === 0) {
-        setMessage("No search found.");
-      } else {
-        setMessage("");
-      }
+      setMessage(trashedTasks.length === 0 ? "No search found." : "");
     } catch (error) {
       setMessage("Error fetching trashed tasks: Please try again.");
       console.error("Error fetching trashed tasks:", error);
@@ -121,20 +99,19 @@ const Archive = () => {
     }
   };
 
-  const restoreSelectedTasks = async () => {
-    for (const taskId of selectedTasks) {
-      await handleRestoreTask(taskId);
-    }
+  // Restore selected tasks
+  const restoreSelectedTasks = () => {
+    selectedTasks.forEach((taskId) => restoreTaskMutation.mutate(taskId));
     setSelectedTasks([]);
   };
 
-  const forceDeleteSelectedTasks = async () => {
-    for (const taskId of selectedTasks) {
-      await handleForceDeleteTask(taskId);
-    }
+  // Force delete selected tasks
+  const forceDeleteSelectedTasks = () => {
+    selectedTasks.forEach((taskId) => forceDeleteTaskMutation.mutate(taskId));
     setSelectedTasks([]);
   };
 
+  // Handle individual task checkbox change
   const handleCheckboxChange = (taskId) => {
     setSelectedTasks((prevSelectedTasks) =>
       prevSelectedTasks.includes(taskId)
@@ -143,6 +120,7 @@ const Archive = () => {
     );
   };
 
+  // Handle select all checkbox
   const handleSelectAllChange = async (e) => {
     if (e.target.checked && trashedTasks?.data) {
       const allTaskIds = [];
@@ -150,14 +128,12 @@ const Archive = () => {
         const response = await axios.get(
           `http://127.0.0.1:8000/api/v1/task/trashed`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
+            headers: getAuthHeaders(),
             params: {
               page: i,
               per_page: trashedTasksPerPage,
               query: searchQuery,
-              status: status,
+              status,
             },
           }
         );
@@ -170,114 +146,122 @@ const Archive = () => {
     }
   };
 
+  // Check if all tasks are selected
   const isAllSelected =
     trashedTasks?.data?.length > 0 &&
     trashedTasks.data.every((task) => selectedTasks.includes(task.id));
 
-  const renderPagination = () => {
-    if (trashedTasks.last_page <= 1) return null;
-
-    const pages = [];
-    for (let i = 1; i <= trashedTasks.last_page; i++) {
-      pages.push(
-        <Button
-          key={i}
-          className={`px-3 py-1 rounded-md ${
-            i === trashedTasks.current_page
-              ? "bg-black text-white"
-              : "bg-green-500"
-          }`}
-          onClick={() => fetchTrashedTasks(i)}
-        >
-          {i}
-        </Button>
-      );
+  // Handle next page
+  const handleNextPage = () => {
+    if (trashedTasks?.current_page < trashedTasks?.last_page) {
+      setCurrentPage(trashedTasks.current_page + 1);
     }
+  };
+
+  // Handle previous page
+  const handlePreviousPage = () => {
+    if (trashedTasks?.current_page > 1) {
+      setCurrentPage(trashedTasks.current_page - 1);
+    }
+  };
+
+  // Generate pagination buttons
+  const getPaginationButtons = () => {
+    const totalPages = trashedTasks?.last_page || 1;
+    const currentPage = trashedTasks?.current_page || 1;
+    let pages = [];
+
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+
+      for (
+        let i = Math.max(currentPage - 1, 2);
+        i <= Math.min(currentPage + 1, totalPages - 1);
+        i++
+      ) {
+        pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+
     return pages;
   };
 
-  const handleRestoreTask = async (taskId) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.patch(
+  const handlePageClick = (page) => {
+    if (page !== "...") {
+      setCurrentPage(page);
+    }
+  };
+
+  // Mutations
+  const restoreTaskMutation = useMutation({
+    mutationFn: (taskId) =>
+      axios.patch(
         `http://localhost:8000/api/v1/tasks/${taskId}/restore`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        { headers: getAuthHeaders() }
+      ),
+    onSuccess: () => {
+      toast.success("Task restored successfully!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to restore task.");
+    },
+  });
 
-      if (
-        response.status === 200 &&
-        response.data?.message === "Task restored successfully!"
-      ) {
-        setTrashedTasks((prevTasks) => ({
-          ...prevTasks,
-          data: prevTasks.data.filter((task) => task.id !== taskId),
-        }));
-        toast.success("Task restored successfully!", {
-          position: "bottom-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-      } else {
-        alert("Failed to restore task. Please try again.");
-      }
-    } catch (error) {
-      alert(error.response?.data?.message || "Failed to restore task.");
-      console.error("Error restoring task:", error);
-    }
+  const handleRestoreTask = (taskId) => {
+    restoreTaskMutation.mutate(taskId);
   };
 
-  const handleForceDeleteTask = async (taskId) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.delete(
+  const forceDeleteTaskMutation = useMutation({
+    mutationFn: (taskId) =>
+      axios.delete(
         `http://localhost:8000/api/v1/tasks/${taskId}/force-delete`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (
-        response.status === 200 &&
-        response.data?.message === "Task permanently deleted successfully!"
-      ) {
-        setTrashedTasks((prevTasks) => ({
-          ...prevTasks,
-          data: prevTasks.data.filter((task) => task.id !== taskId),
-        }));
-        toast.success("Task permanently deleted!", {
-          position: "bottom-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-      } else {
-        alert("Failed to delete task permanently. Please try again.");
-      }
-    } catch (error) {
-      alert(
+        { headers: getAuthHeaders() }
+      ),
+    onSuccess: () => {
+      toast.success("Task permanently deleted!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(
         error.response?.data?.message || "Failed to delete task permanently."
       );
-      console.error("Error deleting task permanently:", error);
-    }
-  };
+    },
+  });
+
+  // Setting document title
+  useEffect(() => {
+    document.title = "Archive - Task Management";
+  }, []);
 
   return (
     <>
@@ -346,7 +330,7 @@ const Archive = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {trashedTasks.data ? (
+                  {trashedTasks?.data ? (
                     trashedTasks.data.length > 0 ? (
                       trashedTasks.data.map((task) => (
                         <tr key={task.id}>
@@ -404,40 +388,43 @@ const Archive = () => {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-center w-full gap-3 mt-5">
-              {/* Previous Button */}
-              <Button
-                className="bg-gray-700 text-white px-4 py-2 rounded-md"
-                onClick={() => {
-                  const prevPage = Math.max(trashedTasks.current_page - 1, 1);
-                  fetchTrashedTasks(prevPage);
-                }}
-                disabled={trashedTasks.current_page === 1}
-              >
-                Previous
-              </Button>
+            {/* Pagination Controls (only shown if trashedTasks data is available) */}
+            {trashedTasks?.data?.length > 0 && (
+              <div className="w-full flex justify-center gap-4 mt-4">
+                <Button
+                  onClick={handlePreviousPage}
+                  disabled={trashedTasks?.current_page <= 1}
+                  className="bg-gray-400 text-white rounded-md"
+                >
+                  Previous
+                </Button>
 
-              {/* Page Buttons */}
-              <div className="flex items-center gap-1">
-                {renderPagination()}
+                {/* Dynamic Pagination Buttons */}
+                {getPaginationButtons().map((page, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePageClick(page)}
+                    className={`bg-black text-white rounded-md px-4 py-2 ${
+                      page === trashedTasks?.current_page
+                        ? "bg-green-500"
+                        : "hover:bg-black"
+                    } `}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <Button
+                  onClick={handleNextPage}
+                  disabled={
+                    trashedTasks?.current_page >= trashedTasks?.last_page
+                  }
+                  className="bg-gray-400 text-white rounded-md"
+                >
+                  Next
+                </Button>
               </div>
-
-              {/* Next Button */}
-              <Button
-                className="bg-gray-700 text-white px-4 py-2 rounded-md"
-                onClick={() => {
-                  const nextPage = Math.min(
-                    trashedTasks.current_page + 1,
-                    trashedTasks.last_page
-                  );
-                  fetchTrashedTasks(nextPage);
-                }}
-                disabled={trashedTasks.current_page === trashedTasks.last_page}
-              >
-                Next
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       </div>
