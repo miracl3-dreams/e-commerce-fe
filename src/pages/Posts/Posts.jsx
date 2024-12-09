@@ -7,13 +7,13 @@ import axios from "../../utils/Axios";
 
 const PostsAndComments = () => {
   const [posts, setPosts] = useState([]);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState({}); // Store comments by postId
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [postFormData, setPostFormData] = useState({ title: "", body: "" });
-  const [commentFormData, setCommentFormData] = useState({});
+  const [commentFormData, setCommentFormData] = useState({}); // Track comment form data for each post
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
-  const [showAllComments, setShowAllComments] = useState({});
+  const [showAllComments, setShowAllComments] = useState({}); // Track show/hide state for comments
   const [page, setPage] = useState(1);
   const [hasMorePosts, setHasMorePosts] = useState(true);
 
@@ -35,10 +35,24 @@ const PostsAndComments = () => {
         getAuthHeaders()
       );
 
-      console.log("API Response:", response.data);
-
       const newPosts = response.data?.data || [];
-      setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+
+      setPosts((prevPosts) => {
+        const uniquePosts = [
+          ...newPosts.filter(
+            (newPost) => !prevPosts.some((post) => post.id === newPost.id)
+          ),
+          ...prevPosts, // Prepend the new posts at the beginning of the array
+        ];
+        return uniquePosts;
+      });
+
+      // Load comments for the newly fetched posts
+      newPosts.forEach((post) => {
+        if (!comments[post.id]) {
+          fetchComments(post.id); // Fetch comments for each post if they don't exist
+        }
+      });
 
       if (newPosts.length === 0 || newPosts.length < 10) {
         setHasMorePosts(false);
@@ -59,13 +73,13 @@ const PostsAndComments = () => {
         `http://127.0.0.1:8000/api/v1/posts/${postId}/comments`,
         getAuthHeaders()
       );
-      setComments((prev) => {
-        const updatedComments = Array.isArray(prev) ? prev : [];
-        return [
-          ...updatedComments.filter((comment) => comment.post_id !== postId),
-          ...(response.data?.data || []),
-        ];
-      });
+
+      // Only update with new comments that are not already in the state
+      const newComments = response.data?.data || [];
+      setComments((prevComments) => ({
+        ...prevComments,
+        [postId]: newComments, // Replace the old comments with the new ones
+      }));
     } catch (error) {
       console.error("Error fetching comments:", error);
     } finally {
@@ -82,20 +96,14 @@ const PostsAndComments = () => {
       );
       setPostFormData({ title: "", body: "" });
       setIsPostModalOpen(false);
-      setPosts([]);
-      setPage(1);
-      setHasMorePosts(true);
-      fetchPosts(1);
+      fetchPosts(1); // Fetch posts again after creating a new post
     } catch (error) {
-      console.error(
-        "Error creating post:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating post:", error);
     }
   };
 
   const handleCreateComment = async (postId) => {
-    if (!commentFormData.comment) {
+    if (!commentFormData[postId] || !commentFormData[postId].comment) {
       console.error("Comment body is required.");
       return;
     }
@@ -103,24 +111,33 @@ const PostsAndComments = () => {
     try {
       await axios.post(
         `/api/v1/posts/${postId}/comments`,
-        { body: commentFormData.comment },
+        { body: commentFormData[postId].comment },
         getAuthHeaders()
       );
-      setCommentFormData({});
+
+      // Reset comment form data for the post
+      setCommentFormData((prevData) => ({
+        ...prevData,
+        [postId]: { comment: "" },
+      }));
+
+      // Re-fetch comments for the post after adding the new comment
       fetchComments(postId);
     } catch (error) {
       console.error("Error creating comment:", error);
     }
   };
 
-  const handleShowCommentForm = (postId) => {
-    setCommentFormData((prev) => ({ ...prev, post_id: postId }));
-  };
-
-  const handleToggleComments = (postId) => {
+  const handleToggleComments = async (postId) => {
     setShowAllComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
-  };
 
+    if (
+      !showAllComments[postId] &&
+      (!comments[postId] || comments[postId].length === 0)
+    ) {
+      await fetchComments(postId);
+    }
+  };
   useEffect(() => {
     document.title = "Posts and Comments - Task Management";
   }, []);
@@ -169,22 +186,13 @@ const PostsAndComments = () => {
               >
                 <h3 className="font-bold">{post.title}</h3>
                 <p>{post.body}</p>
-                <div className="flex justify-start">
-                  <Button
-                    className="bg-blue-500 px-4 py-2 rounded-md mt-4"
-                    onClick={() => handleShowCommentForm(post.id)}
-                  >
-                    Write a comment
-                  </Button>
-                </div>
-                <div className="w-full mt-4">
+                <div className="w-full mt-4 max-h-72 overflow-y-auto">
                   {loadingComments ? (
                     <Cards className="bg-blue-500 flex justify-center">
                       <p>Loading comments...</p>
                     </Cards>
                   ) : (
-                    comments
-                      .filter((comment) => comment.post_id === post.id)
+                    (comments[post.id] || [])
                       .slice(0, showAllComments[post.id] ? undefined : 5)
                       .map((comment, index) => (
                         <div
@@ -201,8 +209,7 @@ const PostsAndComments = () => {
                       ))
                   )}
                 </div>
-                {comments.filter((comment) => comment.post_id === post.id)
-                  .length > 5 && (
+                {comments[post.id]?.length > 5 && (
                   <button
                     className="text-blue-700 mt-2"
                     onClick={() => handleToggleComments(post.id)}
@@ -210,27 +217,26 @@ const PostsAndComments = () => {
                     {showAllComments[post.id] ? "Show Less" : "Show More"}
                   </button>
                 )}
-                {commentFormData.post_id === post.id && (
-                  <div className="flex items-center mt-4 w-full">
-                    <textarea
-                      className="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Write a comment..."
-                      value={commentFormData.comment || ""}
-                      onChange={(e) =>
-                        setCommentFormData({
-                          ...commentFormData,
-                          comment: e.target.value,
-                        })
-                      }
-                    />
-                    <Button
-                      className="bg-green-500 px-4 py-2 rounded-md ml-3"
-                      onClick={() => handleCreateComment(post.id)}
-                    >
-                      Comment
-                    </Button>
-                  </div>
-                )}
+                {/* Comment Form */}
+                <div className="flex items-center mt-4 w-full">
+                  <textarea
+                    className="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Write a comment..."
+                    value={commentFormData[post.id]?.comment || ""}
+                    onChange={(e) =>
+                      setCommentFormData({
+                        ...commentFormData,
+                        [post.id]: { comment: e.target.value },
+                      })
+                    }
+                  />
+                  <Button
+                    className="bg-green-500 px-4 py-2 rounded-md ml-3"
+                    onClick={() => handleCreateComment(post.id)}
+                  >
+                    Comment
+                  </Button>
+                </div>
               </div>
             ))
           ) : (
@@ -241,10 +247,11 @@ const PostsAndComments = () => {
         </InfiniteScroll>
       </div>
 
+      {/* Modal for creating a post */}
       <Modal isOpen={isPostModalOpen} className="bg-slate-300">
         <h2 className="font-poppins font-bold text-xl">Create Post</h2>
         <input
-          className="w-full px-4 py-2 rounded-md mt-4"
+          className="w-full px-4 py-2 border rounded-md my-3"
           type="text"
           placeholder="Title"
           value={postFormData.title}
@@ -253,27 +260,25 @@ const PostsAndComments = () => {
           }
         />
         <textarea
-          className="w-full px-4 py-2 rounded-md mt-4"
+          className="w-full px-4 py-2 border rounded-md my-3"
           placeholder="Body"
           value={postFormData.body}
           onChange={(e) =>
             setPostFormData({ ...postFormData, body: e.target.value })
           }
         />
-        <div className="flex gap-2">
-          <Button
-            className="bg-green-500 px-4 py-2 rounded-md mt-4"
-            onClick={handleCreatePost}
-          >
-            Create Post
-          </Button>
-          <Button
-            className="bg-red-500 px-4 py-2 rounded-md mt-4"
-            onClick={() => setIsPostModalOpen(false)}
-          >
-            Cancel
-          </Button>
-        </div>
+        <Button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md my-3"
+          onClick={handleCreatePost}
+        >
+          Create Post
+        </Button>
+        <Button
+          className="bg-red-500 text-white px-4 py-2 rounded-md my-3"
+          onClick={() => setIsPostModalOpen(false)}
+        >
+          Close
+        </Button>
       </Modal>
     </div>
   );
