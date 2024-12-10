@@ -67,7 +67,37 @@ const Posts = () => {
       );
       return response.data.data;
     },
+    onMutate: (postId) => {
+      queryClient.setQueryData(["posts", query], (oldData) => {
+        if (!oldData) return;
+
+        const newCommentData = {
+          body: newComment[postId],
+          post_id: postId,
+          created_at: new Date().toISOString(),
+        };
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            data: Array.isArray(page.data)
+              ? page.data.map((post) =>
+                  post.id === postId
+                    ? {
+                        ...post,
+                        comments: [newCommentData, ...(post.comments || [])],
+                      }
+                    : post
+                )
+              : page.data,
+          })),
+        };
+      });
+    },
     onSuccess: (newCommentData) => {
+      queryClient.invalidateQueries(["posts", query]);
+
       queryClient.setQueryData(["posts", query], (oldData) => {
         if (!oldData) return;
 
@@ -75,19 +105,26 @@ const Posts = () => {
           ...oldData,
           pages: oldData.pages.map((page) => ({
             ...page,
-            data: page.data.map((post) =>
-              post.id === newCommentData.post_id
-                ? {
-                    ...post,
-                    comments: [newCommentData, ...(post.comments || [])],
-                  }
-                : post
-            ),
+            data: Array.isArray(page.data)
+              ? page.data.map((post) =>
+                  post.id === newCommentData.post_id
+                    ? {
+                        ...post,
+                        comments: [
+                          newCommentData,
+                          ...(post.comments || []).sort(
+                            (a, b) =>
+                              new Date(b.created_at) - new Date(a.created_at)
+                          ),
+                        ],
+                      }
+                    : post
+                )
+              : page.data,
           })),
         };
       });
 
-      // Reset the comment input for the specific post
       setNewComment((prev) => ({ ...prev, [newCommentData.post_id]: "" }));
     },
     onError: (error) => {
