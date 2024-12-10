@@ -1,121 +1,117 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 const Posts = () => {
-  const [posts, setPosts] = useState([]);
   const [query, setQuery] = useState("");
   const [newPost, setNewPost] = useState({ title: "", body: "" });
-  const [error, setError] = useState(null);
   const [newComment, setNewComment] = useState({});
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const queryClient = useQueryClient();
 
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
   });
 
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/v1/posts?page=${page}`,
-        {
-          headers: getAuthHeaders(),
-        }
-      );
-
-      const postsData = response.data.data.data;
-      if (Array.isArray(postsData)) {
-        setPosts((prevPosts) => {
-          const uniquePosts = postsData.filter(
-            (newPost) => !prevPosts.some((post) => post.id === newPost.id)
-          );
-          return [...prevPosts, ...uniquePosts];
-        });
-
-        setHasMore(postsData.length > 0);
-      } else {
-        console.error("Expected an array, but got", postsData);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch posts.");
-    }
+  const fetchPosts = async ({ pageParam = 1 }) => {
+    const response = await axios.get("http://127.0.0.1:8000/api/v1/posts", {
+      params: { page: pageParam, query },
+      headers: getAuthHeaders(),
+    });
+    console.log(response.data);
+    return response.data;
   };
 
-  const loadMorePosts = () => {
-    if (hasMore) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
+  const {
+    data,
+    isError,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["posts", query],
+    queryFn: fetchPosts,
+    getNextPageParam: (lastPage) =>
+      lastPage.data.next_page_url ? lastPage.data.current_page + 1 : undefined,
+  });
 
-  const createPost = async () => {
-    try {
+  const { mutate: createPost } = useMutation({
+    mutationFn: async () => {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/v1/posts",
         newPost,
-        {
-          headers: getAuthHeaders(),
-        }
+        { headers: getAuthHeaders() }
       );
+      return response.data.data;
+    },
+    onSuccess: () => {
       setNewPost({ title: "", body: "" });
-      fetchPosts();
-    } catch (err) {
-      console.error(err);
-      setError("Failed to create post.");
+      queryClient.invalidateQueries(["posts"]);
+    },
+    onError: (error) => {
+      console.error("Error creating post:", error);
+    },
+  });
+
+  const { mutate: addComment } = useMutation({
+    mutationFn: async (postId) => {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/v1/posts/${postId}/comments`,
+        { body: newComment[postId] },
+        { headers: getAuthHeaders() }
+      );
+      return response.data.data;
+    },
+    onSuccess: (newCommentData) => {
+      queryClient.setQueryData(["posts", query], (oldData) => {
+        if (!oldData) return;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            data: page.data.map((post) =>
+              post.id === newCommentData.post_id
+                ? {
+                    ...post,
+                    comments: [newCommentData, ...(post.comments || [])],
+                  }
+                : post
+            ),
+          })),
+        };
+      });
+
+      // Reset the comment input for the specific post
+      setNewComment((prev) => ({ ...prev, [newCommentData.post_id]: "" }));
+    },
+    onError: (error) => {
+      console.error("Error adding comment:", error);
+    },
+  });
+
+  const loadMorePosts = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   };
 
-  const searchPosts = async () => {
-    setError(null);
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/v1/posts/search",
-        {
-          params: { query },
-          headers: getAuthHeaders(),
-        }
-      );
-      if (Array.isArray(response.data.data)) {
-        setPosts(response.data.data);
-        setError(null);
-      } else {
-        console.error(
-          "Expected an array of posts, but received:",
-          response.data
-        );
-        setPosts([]);
-      }
-    } catch (err) {
-      setPosts([]);
-    }
+  const searchPosts = () => {
+    setQuery("");
+    queryClient.invalidateQueries(["posts"]);
   };
 
   const resetSearch = () => {
     setQuery("");
-    fetchPosts();
+    queryClient.invalidateQueries(["posts"]);
   };
 
-  const handleCommentSubmit = async (postId) => {
-    try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/api/v1/posts/${postId}/comments`,
-        { body: newComment[postId] },
-        {
-          headers: getAuthHeaders(),
-        }
-      );
-      setNewComment({ ...newComment, [postId]: "" });
-      fetchPosts();
-    } catch (err) {
-      console.error(err);
-      setError("Failed to add comment.");
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, [page]);
+  const allPosts = data ? data.pages.flatMap((page) => page.data.data) : [];
 
   return (
     <div className="bg-white relative flex flex-col items-center h-full w-full">
@@ -123,7 +119,12 @@ const Posts = () => {
         Posts and Comments
       </h1>
 
-      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+      {isError && (
+        <div className="text-red-500 text-center mb-4">
+          Failed to fetch posts.
+        </div>
+      )}
+      {isLoading && <div className="text-center mb-4">Loading...</div>}
 
       <div className="flex flex-col items-center gap-5 w-full">
         {/* Create Post Section */}
@@ -147,7 +148,7 @@ const Posts = () => {
           />
           <button
             className="bg-green-500 px-4 py-2 rounded-md"
-            onClick={createPost}
+            onClick={() => createPost()}
           >
             Submit
           </button>
@@ -180,41 +181,50 @@ const Posts = () => {
         </div>
 
         {/* Display Posts with Infinite Scroll */}
-        <div className="bg-gray-100 p-6 rounded-md w-full max-w-5xl">
-          <h2 className="text-black text-2xl mb-4">All Posts</h2>
-
+        <div className="bg-gray-300 p-6 rounded-md w-full max-w-5xl">
+          <h2 className="text-black text-2xl mb-4 text-center">All Posts</h2>
           <InfiniteScroll
-            dataLength={posts.length}
-            next={loadMorePosts}
-            hasMore={hasMore}
-            loader={<h4>Loading...</h4>}
-            endMessage={<p>No more posts to load.</p>}
+            dataLength={allPosts.length}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            loader={<h4>Loading more posts...</h4>}
+            endMessage={<p>No more posts available.</p>}
           >
-            {posts.length > 0 ? (
-              posts.map((post) => (
+            {allPosts.length > 0 ? (
+              allPosts.map((post) => (
                 <div key={post.id} className="mb-6">
-                  <h3>{post.title}</h3>
-                  <p>{post.body}</p>
+                  <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+                  <p className="mb-4 text-gray-700">{post.body}</p>
 
                   {/* Display Comments */}
-                  <div className="mt-4">
-                    <h4 className="font-bold text-xl">Comments</h4>
-                    {post.comments && post.comments.length > 0 ? (
-                      <ul>
-                        {post.comments.map((comment) => (
-                          <li key={comment.id} className="mt-2">
-                            <p>{comment.body}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>No comments yet.</p>
-                    )}
+                  <div className="mt-4 bg-gray-100 rounded-md p-4 shadow-md">
+                    <h4 className="font-bold text-lg mb-3">Comments</h4>
+                    <div
+                      className="overflow-y-auto max-h-60 p-4 rounded-md bg-white"
+                      style={{ maxHeight: "200px" }}
+                    >
+                      {post.comments && post.comments.length > 0 ? (
+                        <ul className="space-y-2">
+                          {post.comments.map((comment) => (
+                            <li
+                              key={comment.id}
+                              className="text-sm text-gray-600"
+                            >
+                              {comment.body}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No comments yet.
+                        </p>
+                      )}
+                    </div>
 
                     {/* Add Comment */}
                     <div className="mt-4">
                       <textarea
-                        className="px-4 py-2 rounded-md w-full"
+                        className="px-4 py-2 rounded-md w-full border border-gray-300"
                         placeholder="Add a comment"
                         value={newComment[post.id] || ""}
                         onChange={(e) =>
@@ -225,8 +235,8 @@ const Posts = () => {
                         }
                       />
                       <button
-                        className="bg-blue-500 px-4 py-2 mt-2 rounded-md"
-                        onClick={() => handleCommentSubmit(post.id)}
+                        className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-md hover:bg-blue-600 transition"
+                        onClick={() => addComment(post.id)}
                       >
                         Comment
                       </button>
@@ -235,7 +245,9 @@ const Posts = () => {
                 </div>
               ))
             ) : (
-              <p>No posts available.</p>
+              <p className="text-center text-gray-500 mt-6">
+                No posts available.
+              </p>
             )}
           </InfiniteScroll>
         </div>
