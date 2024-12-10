@@ -13,11 +13,14 @@ const Posts = () => {
   const [newComment, setNewComment] = useState({});
   const queryClient = useQueryClient();
 
+  // Get the Authorization header for API requests
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
   });
 
+  // Fetch posts function considering the query
   const fetchPosts = async ({ pageParam = 1 }) => {
+    console.log("Fetching posts with query:", query);
     const response = await axios.get("http://127.0.0.1:8000/api/v1/posts", {
       params: { page: pageParam, query },
       headers: getAuthHeaders(),
@@ -26,6 +29,7 @@ const Posts = () => {
     return response.data;
   };
 
+  // Use react-query's infinite query to fetch posts with search query
   const {
     data,
     isError,
@@ -40,6 +44,7 @@ const Posts = () => {
       lastPage.data.next_page_url ? lastPage.data.current_page + 1 : undefined,
   });
 
+  // Mutation to create a new post
   const { mutate: createPost } = useMutation({
     mutationFn: async () => {
       const response = await axios.post(
@@ -58,6 +63,7 @@ const Posts = () => {
     },
   });
 
+  // Mutation to add a comment to a post
   const { mutate: addComment } = useMutation({
     mutationFn: async (postId) => {
       const response = await axios.post(
@@ -132,22 +138,15 @@ const Posts = () => {
     },
   });
 
+  // Load more posts when scroll reaches the end
   const loadMorePosts = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
+      loadMorePosts();
     }
   };
 
-  const searchPosts = () => {
-    setQuery("");
-    queryClient.invalidateQueries(["posts"]);
-  };
-
-  const resetSearch = () => {
-    setQuery("");
-    queryClient.invalidateQueries(["posts"]);
-  };
-
+  // Flatten the pages of posts into one array for display
   const allPosts = data ? data.pages.flatMap((page) => page.data.data) : [];
 
   return (
@@ -166,7 +165,9 @@ const Posts = () => {
       <div className="flex flex-col items-center gap-5 w-full">
         {/* Create Post Section */}
         <div className="bg-blue-500 relative flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
-          <h2 className="text-white text-2xl mb-4">Create a New Post</h2>
+          <h2 className="text-black text-center font-bold text-2xl mb-4">
+            Create a New Post
+          </h2>
           <input
             className="px-4 py-2 rounded-md w-full"
             placeholder="Title"
@@ -187,45 +188,32 @@ const Posts = () => {
             className="bg-green-500 px-4 py-2 rounded-md"
             onClick={() => createPost()}
           >
-            Submit
+            Create Post
           </button>
         </div>
 
         {/* Search Posts Section */}
         <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
-          <h2 className="text-black text-2xl mb-4">Search Posts</h2>
+          <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
           <input
             className="px-4 py-2 rounded-md w-full"
-            placeholder="Search by title or body"
+            placeholder="Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <div className="flex gap-3">
-            <button
-              className="bg-blue-500 px-4 py-2 mt-2 rounded-md"
-              onClick={searchPosts}
-            >
-              Search
-            </button>
-            {/* Reset Button */}
-            <button
-              className="bg-red-500 px-4 py-2 mt-2 rounded-md"
-              onClick={resetSearch}
-            >
-              Reset Search
-            </button>
-          </div>
         </div>
 
         {/* Display Posts with Infinite Scroll */}
         <div className="bg-gray-300 p-6 rounded-md w-full max-w-5xl">
-          <h2 className="text-black text-2xl mb-4 text-center">All Posts</h2>
+          <h2 className="text-black text-2xl font-bold mb-4 text-center">
+            All Posts
+          </h2>
           <InfiniteScroll
             dataLength={allPosts.length}
             next={fetchNextPage}
             hasMore={hasNextPage}
             loader={<h4>Loading more posts...</h4>}
-            endMessage={<p>No more posts available.</p>}
+            endMessage={<p className="text-center">No more posts available.</p>}
           >
             {allPosts.length > 0 ? (
               allPosts.map((post) => (
