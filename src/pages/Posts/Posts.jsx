@@ -12,6 +12,9 @@ const Posts = () => {
   const [newPost, setNewPost] = useState({ title: "", body: "" });
   const [newComment, setNewComment] = useState({});
   const queryClient = useQueryClient();
+  const [showAllComments, setShowAllComments] = useState(false);
+
+  const initialLimit = 3;
 
   // Get the Authorization header for API requests
   const getAuthHeaders = () => ({
@@ -44,6 +47,15 @@ const Posts = () => {
       lastPage.data.next_page_url ? lastPage.data.current_page + 1 : undefined,
   });
 
+  // Fetch comments function
+  const fetchComments = async ({ pageParam = 1 }) => {
+    const response = await axios.get("http://127.0.0.1:8000/api/v1/comments", {
+      params: { page: pageParam },
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  };
+
   // Mutation to create a new post
   const { mutate: createPost } = useMutation({
     mutationFn: async () => {
@@ -74,6 +86,8 @@ const Posts = () => {
       return response.data.data;
     },
     onMutate: (postId) => {
+      console.log("onMutate - Before updating cache:");
+
       queryClient.setQueryData(["posts", query], (oldData) => {
         if (!oldData) return;
 
@@ -92,7 +106,13 @@ const Posts = () => {
                   post.id === postId
                     ? {
                         ...post,
-                        comments: [newCommentData, ...(post.comments || [])],
+                        comments: [
+                          newCommentData,
+                          ...(post.comments || []),
+                        ].sort(
+                          (a, b) =>
+                            new Date(b.created_at) - new Date(a.created_at)
+                        ),
                       }
                     : post
                 )
@@ -102,10 +122,13 @@ const Posts = () => {
       });
     },
     onSuccess: (newCommentData) => {
+      console.log("onSuccess - After mutation, before invalidating queries:");
       queryClient.invalidateQueries(["posts", query]);
 
       queryClient.setQueryData(["posts", query], (oldData) => {
         if (!oldData) return;
+
+        console.log("Old Data after mutation:", oldData);
 
         return {
           ...oldData,
@@ -118,11 +141,11 @@ const Posts = () => {
                         ...post,
                         comments: [
                           newCommentData,
-                          ...(post.comments || []).sort(
-                            (a, b) =>
-                              new Date(b.created_at) - new Date(a.created_at)
-                          ),
-                        ],
+                          ...(post.comments || []),
+                        ].sort(
+                          (a, b) =>
+                            new Date(b.created_at) - new Date(a.created_at)
+                        ),
                       }
                     : post
                 )
@@ -133,17 +156,17 @@ const Posts = () => {
 
       setNewComment((prev) => ({ ...prev, [newCommentData.post_id]: "" }));
     },
-    onError: (error) => {
-      console.error("Error adding comment:", error);
-    },
   });
 
   // Load more posts when scroll reaches the end
   const loadMorePosts = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
-      loadMorePosts();
     }
+  };
+
+  const toggleComments = () => {
+    setShowAllComments(!showAllComments);
   };
 
   // Flatten the pages of posts into one array for display
@@ -155,21 +178,22 @@ const Posts = () => {
         Posts and Comments
       </h1>
 
+      {/* Error & Loading States */}
       {isError && (
         <div className="text-red-500 text-center mb-4">
-          Failed to fetch posts.
+          Failed to fetch posts. Please try again later.
         </div>
       )}
       {isLoading && <div className="text-center mb-4">Loading...</div>}
 
       <div className="flex flex-col items-center gap-5 w-full">
         {/* Create Post Section */}
-        <div className="bg-blue-500 relative flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+        <div className="bg-blue-500 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
           <h2 className="text-black text-center font-bold text-2xl mb-4">
             Create a New Post
           </h2>
           <input
-            className="px-4 py-2 rounded-md w-full"
+            className="px-4 py-2 rounded-md w-full border border-gray-300"
             placeholder="Title"
             value={newPost.title}
             onChange={(e) =>
@@ -177,7 +201,7 @@ const Posts = () => {
             }
           />
           <textarea
-            className="px-4 py-2 rounded-md w-full"
+            className="px-4 py-2 rounded-md w-full border border-gray-300"
             placeholder="Body"
             value={newPost.body}
             onChange={(e) =>
@@ -185,7 +209,7 @@ const Posts = () => {
             }
           />
           <button
-            className="bg-green-500 px-4 py-2 rounded-md"
+            className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-600 transition"
             onClick={() => createPost()}
           >
             Create Post
@@ -196,7 +220,7 @@ const Posts = () => {
         <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
           <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
           <input
-            className="px-4 py-2 rounded-md w-full"
+            className="px-4 py-2 rounded-md w-full border border-gray-300"
             placeholder="Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -212,8 +236,12 @@ const Posts = () => {
             dataLength={allPosts.length}
             next={fetchNextPage}
             hasMore={hasNextPage}
-            loader={<h4>Loading more posts...</h4>}
-            endMessage={<p className="text-center">No more posts available.</p>}
+            loader={<h4 className="text-center">Loading more posts...</h4>}
+            endMessage={
+              <p className="text-center text-gray-500">
+                No more posts available.
+              </p>
+            }
           >
             {allPosts.length > 0 ? (
               allPosts.map((post) => (
@@ -225,25 +253,46 @@ const Posts = () => {
                   <div className="mt-4 bg-gray-100 rounded-md p-4 shadow-md">
                     <h4 className="font-bold text-lg mb-3">Comments</h4>
                     <div
-                      className="overflow-y-auto max-h-60 p-4 rounded-md bg-white"
+                      className="overflow-y-auto p-4 rounded-md bg-white border border-gray-200"
                       style={{ maxHeight: "200px" }}
                     >
                       {post.comments && post.comments.length > 0 ? (
                         <ul className="space-y-2">
-                          {post.comments.map((comment) => (
-                            <li
-                              key={comment.id}
-                              className="text-sm text-gray-600"
-                            >
-                              {comment.body}
-                            </li>
-                          ))}
+                          {post.comments
+                            .sort(
+                              (a, b) =>
+                                new Date(b.created_at) - new Date(a.created_at)
+                            )
+                            .slice(
+                              0,
+                              showAllComments
+                                ? post.comments.length
+                                : initialLimit
+                            )
+                            .map((comment) => (
+                              <li
+                                key={comment.id}
+                                className="text-sm text-gray-600"
+                              >
+                                {comment.body}
+                              </li>
+                            ))}
                         </ul>
                       ) : (
                         <p className="text-sm text-gray-500">
                           No comments yet.
                         </p>
                       )}
+                      <div>
+                        {post.comments.length > initialLimit && (
+                          <button
+                            className="text-blue-500 hover:underline mt-2"
+                            onClick={toggleComments}
+                          >
+                            {showAllComments ? "See Less" : "See More"}
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Add Comment */}
