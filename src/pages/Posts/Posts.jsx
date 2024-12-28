@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Button from "../../components/Button";
+import Modal from "../../components/Modal";
 import {
   useInfiniteQuery,
   useMutation,
@@ -8,13 +10,18 @@ import {
 } from "@tanstack/react-query";
 
 const Posts = () => {
+  // State Variables
+  const [formData, setFormData] = useState({ title: "", body: "" });
   const [query, setQuery] = useState("");
   const [newPost, setNewPost] = useState({ title: "", body: "" });
   const [newComment, setNewComment] = useState({});
-  const queryClient = useQueryClient();
+  const [currentPost, setCurrentPost] = useState(null);
   const [showAllComments, setShowAllComments] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const initialLimit = 3;
+
+  // Query Client
+  const queryClient = useQueryClient();
 
   // Get the Authorization header for API requests
   const getAuthHeaders = () => ({
@@ -74,6 +81,13 @@ const Posts = () => {
       console.error("Error creating post:", error);
     },
   });
+
+  // Modal Handling for Create Post
+  const openModalForCreate = () => {
+    setCurrentPost(null);
+    setFormData({ title: "", body: "" });
+    setIsModalOpen(true);
+  };
 
   // Mutation to add a comment to a post
   const { mutate: addComment } = useMutation({
@@ -169,6 +183,10 @@ const Posts = () => {
     setShowAllComments(!showAllComments);
   };
 
+  useEffect(() => {
+    document.title = "Posts - Task Management";
+  });
+
   // Flatten the pages of posts into one array for display
   const allPosts = data ? data.pages.flatMap((page) => page.data.data) : [];
 
@@ -189,6 +207,14 @@ const Posts = () => {
       <div className="flex flex-col items-center gap-5 w-full">
         {/* Create Post Section */}
         <div className="bg-blue-500 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+          <div className="flex w-full">
+            <input
+              className="px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring focus:ring-blue-300 w-full"
+              type="text"
+              placeholder="What's on your mind, User?"
+              onClick={openModalForCreate}
+            />
+          </div>
           <h2 className="text-black text-center font-bold text-2xl mb-4">
             Create a New Post
           </h2>
@@ -208,12 +234,12 @@ const Posts = () => {
               setNewPost((prev) => ({ ...prev, body: e.target.value }))
             }
           />
-          <button
+          {/* <button
             className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-600 transition"
             onClick={() => createPost()}
           >
             Create Post
-          </button>
+          </button> */}
         </div>
 
         {/* Search Posts Section */}
@@ -325,6 +351,53 @@ const Posts = () => {
             )}
           </InfiniteScroll>
         </div>
+
+        {/* Modal for Creating Post*/}
+        <Modal
+          isOpen={isModalOpen}
+          className="bg-slate-300"
+          closeModal={() => setIsModalOpen(false)}
+        >
+          <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
+            <h2 className="text-2xl font-semibold text-black">Create Post</h2>
+            <form
+              className="flex flex-col w-full"
+              onSubmit={(e) => {
+                e.preventDefault();
+                createPost(formData);
+              }}
+            >
+              <label className="text-black">Title...</label>
+              <input
+                className="w-full px-4 py-2 border rounded-md mb-3"
+                name="name"
+                value={formData.title}
+              />
+              <label className="text-black">Body...</label>
+              <textarea
+                className="w-full px-4 py-2 border rounded-md mb-3"
+                name="task"
+                value={formData.body}
+                rows="5"
+              />
+              <div className="flex justify-center gap-4 mt-4">
+                <Button
+                  type="button"
+                  className="bg-gray-400 text-white rounded-md"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-green-500 text-white rounded-md"
+                >
+                  Create
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Modal>
       </div>
     </div>
   );
