@@ -215,42 +215,6 @@ const Posts = () => {
               onClick={openModalForCreate}
             />
           </div>
-          <h2 className="text-black text-center font-bold text-2xl mb-4">
-            Create a New Post
-          </h2>
-          <input
-            className="px-4 py-2 rounded-md w-full border border-gray-300"
-            placeholder="Title"
-            value={newPost.title}
-            onChange={(e) =>
-              setNewPost((prev) => ({ ...prev, title: e.target.value }))
-            }
-          />
-          <textarea
-            className="px-4 py-2 rounded-md w-full border border-gray-300"
-            placeholder="Body"
-            value={newPost.body}
-            onChange={(e) =>
-              setNewPost((prev) => ({ ...prev, body: e.target.value }))
-            }
-          />
-          {/* <button
-            className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-600 transition"
-            onClick={() => createPost()}
-          >
-            Create Post
-          </button> */}
-        </div>
-
-        {/* Search Posts Section */}
-        <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
-          <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
-          <input
-            className="px-4 py-2 rounded-md w-full border border-gray-300"
-            placeholder="Search..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
         </div>
 
         {/* Display Posts with Infinite Scroll */}
@@ -258,98 +222,113 @@ const Posts = () => {
           <h2 className="text-black text-2xl font-bold mb-4 text-center">
             All Posts
           </h2>
-          <InfiniteScroll
-            dataLength={allPosts.length}
-            next={fetchNextPage}
-            hasMore={hasNextPage}
-            loader={<h4 className="text-center">Loading more posts...</h4>}
-            endMessage={
-              <p className="text-center text-gray-500">
-                No more posts available.
-              </p>
-            }
-          >
-            {allPosts.length > 0 ? (
-              allPosts.map((post) => (
-                <div key={post.id} className="mb-6">
-                  <h3 className="text-xl font-bold mb-2">{post.title}</h3>
-                  <p className="mb-4 text-gray-700">{post.body}</p>
 
-                  {/* Display Comments */}
-                  <div className="mt-4 bg-gray-100 rounded-md p-4 shadow-md">
-                    <h4 className="font-bold text-lg mb-3">Comments</h4>
-                    <div
-                      className="overflow-y-auto p-4 rounded-md bg-white border border-gray-200"
-                      style={{ maxHeight: "200px" }}
-                    >
-                      {post.comments && post.comments.length > 0 ? (
-                        <ul className="space-y-2">
-                          {post.comments
-                            .sort(
-                              (a, b) =>
-                                new Date(b.created_at) - new Date(a.created_at)
-                            )
-                            .slice(
-                              0,
-                              showAllComments
-                                ? post.comments.length
-                                : initialLimit
-                            )
-                            .map((comment) => (
-                              <li
-                                key={comment.id}
-                                className="text-sm text-gray-600"
-                              >
-                                {comment.body}
-                              </li>
-                            ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-gray-500">
-                          No comments yet.
-                        </p>
-                      )}
-                      <div>
-                        {post.comments.length > initialLimit && (
-                          <button
-                            className="text-blue-500 hover:underline mt-2"
-                            onClick={toggleComments}
-                          >
-                            {showAllComments ? "See Less" : "See More"}
-                          </button>
+          {/* Search Posts Section */}
+          <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
+            <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
+            <input
+              className="px-4 py-2 rounded-md w-full border border-gray-300"
+              placeholder="Search..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="py-10">
+            <InfiniteScroll
+              dataLength={allPosts.length}
+              next={fetchNextPage}
+              hasMore={hasNextPage}
+              loader={<h4 className="text-center">Loading more posts...</h4>}
+              endMessage={
+                <p className="text-center text-gray-500">
+                  No more posts available.
+                </p>
+              }
+            >
+              {allPosts.length > 0 ? (
+                allPosts.map((post) => (
+                  <div key={post.id} className="mb-6">
+                    <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+                    <p className="mb-4 text-gray-700">{post.body}</p>
+
+                    {/* Display Comments */}
+                    <div className="mt-4 bg-gray-100 rounded-md p-4 shadow-md">
+                      <h4 className="font-bold text-lg mb-3">Comments</h4>
+                      <div
+                        className="overflow-y-auto p-4 rounded-md bg-white border border-gray-200"
+                        style={{ maxHeight: "200px" }}
+                      >
+                        {post.comments && post.comments.length > 0 ? (
+                          <ul className="space-y-2">
+                            {post.comments
+                              .sort(
+                                (a, b) =>
+                                  new Date(b.created_at) -
+                                  new Date(a.created_at)
+                              )
+                              .slice(
+                                0,
+                                showAllComments
+                                  ? post.comments.length
+                                  : initialLimit
+                              )
+                              .map((comment) => (
+                                <li
+                                  key={comment.id}
+                                  className="text-sm text-gray-600"
+                                >
+                                  {comment.body}
+                                </li>
+                              ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            No comments yet.
+                          </p>
                         )}
+                        <div>
+                          {post.comments.length > initialLimit && (
+                            <button
+                              className="text-blue-500 hover:underline mt-2"
+                              onClick={toggleComments}
+                            >
+                              {showAllComments ? "See Less" : "See More"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Add Comment */}
+                      <div className="mt-4">
+                        <textarea
+                          className="px-4 py-2 rounded-md w-full border border-gray-300"
+                          placeholder="Add a comment"
+                          value={newComment[post.id] || ""}
+                          onChange={(e) =>
+                            setNewComment({
+                              ...newComment,
+                              [post.id]: e.target.value,
+                            })
+                          }
+                        />
+                        <button
+                          className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-md hover:bg-blue-600 transition"
+                          onClick={() => addComment(post.id)}
+                        >
+                          Comment
+                        </button>
                       </div>
                     </div>
-
-                    {/* Add Comment */}
-                    <div className="mt-4">
-                      <textarea
-                        className="px-4 py-2 rounded-md w-full border border-gray-300"
-                        placeholder="Add a comment"
-                        value={newComment[post.id] || ""}
-                        onChange={(e) =>
-                          setNewComment({
-                            ...newComment,
-                            [post.id]: e.target.value,
-                          })
-                        }
-                      />
-                      <button
-                        className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-md hover:bg-blue-600 transition"
-                        onClick={() => addComment(post.id)}
-                      >
-                        Comment
-                      </button>
-                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 mt-6">
-                No posts available.
-              </p>
-            )}
-          </InfiniteScroll>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 mt-6">
+                  No posts available.
+                </p>
+              )}
+            </InfiniteScroll>
+          </div>
         </div>
 
         {/* Modal for Creating Post*/}
@@ -370,14 +349,20 @@ const Posts = () => {
               <label className="text-black">Title...</label>
               <input
                 className="w-full px-4 py-2 border rounded-md mb-3"
-                name="name"
-                value={formData.title}
+                name="Title"
+                value={newPost.title}
+                onChange={(e) =>
+                  setNewPost((prev) => ({ ...prev, title: e.target.value }))
+                }
               />
               <label className="text-black">Body...</label>
               <textarea
                 className="w-full px-4 py-2 border rounded-md mb-3"
-                name="task"
-                value={formData.body}
+                name="Body"
+                value={newPost.body}
+                onChange={(e) =>
+                  setNewPost((prev) => ({ ...prev, body: e.target.value }))
+                }
                 rows="5"
               />
               <div className="flex justify-center gap-4 mt-4">
