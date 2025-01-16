@@ -120,12 +120,17 @@ const Login = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col ">
+      {(loginMutation.isLoading || loadingDelay) && (
+            <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-20">
+              <Loading />
+            </div>
+          )}
       <div
         className="bg-white bg-cover bg-bottom flex justify-center items-center flex-1"
         style={{ backgroundImage: `url(${backgroundImg})` }}
       >
-        <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%]">
+        <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%] relative">
           <h1 className="font-poppins text-2xl font-bold text-center mb-5">
             Task Management
           </h1>
@@ -177,7 +182,7 @@ const Login = () => {
               type="submit"
               disabled={loginMutation.isLoading || loadingDelay || cooldown}
             >
-              {loginMutation.isLoading || loadingDelay ? <Loading /> : "Log In"}
+              {loginMutation.isLoading || loadingDelay ? "Logging In..." : "Log In"}
             </Button>
             <p className="text-center text-sm mt-4">
               Don't have an account?{" "}
@@ -186,12 +191,13 @@ const Login = () => {
               </Link>
             </p>
           </form>
+
         </div>
       </div>
-
+  
       <Footer />
     </div>
   );
-};
+};  
 
 export default Login;
