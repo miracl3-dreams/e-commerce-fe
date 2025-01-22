@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import NavigationBar from "./components/NavigationBar";
 import Dashboard from "./pages/Dashboard/dashboard";
 import Tasks from "./pages/Tasks/tasks";
@@ -22,6 +22,8 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ToastContainer />
         <Routes>
+          {/* Redirect root path to /login */}
+          <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
