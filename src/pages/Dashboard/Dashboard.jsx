@@ -32,8 +32,8 @@ const Dashboard = () => {
             Dashboard Page
           </h1>
         </div>
-        <div>
-          <Cards className="bg-blue-500 flex justify-center">
+        <div className="flex justify-center items-center h-[65vh]">
+          <Cards className="bg-blue-500 flex justiy-center items-start h">
             <p className="text-xl text-gray-700 mt-4">
               Total Tasks: <span className="font-semibold">{taskCount}</span>
             </p>
