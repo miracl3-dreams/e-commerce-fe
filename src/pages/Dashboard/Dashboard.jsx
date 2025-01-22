@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/Axios";
 import Cards from "../../components/Cards";
+import { useSpring, animated } from "@react-spring/web";
 
 const Dashboard = () => {
   const [taskCount, setTaskCount] = useState(0);
+  const [postCount, setPostCount] = useState(0);
 
   // Function to fetch task count
   const fetchTaskCount = async () => {
@@ -20,27 +22,72 @@ const Dashboard = () => {
     }
   };
 
+  // Function to fetch post count
+  const fetchPostCount = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/v1/posts", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        params: { per_page: 1 },
+      });
+      
+      const totalPosts = response.data?.meta?.total;
+      setPostCount(totalPosts || 0); 
+  
+    } catch (error) {
+      console.error("Failed to fetch post count:", error);
+    }
+  };
+
   useEffect(() => {
     fetchTaskCount();
+    fetchPostCount();
   }, []);
 
+
+  const animatedTaskCount = useSpring({
+    from: { number: 0 },
+    to: { number: taskCount },
+    delay: 200, 
+    config: { tension: 120, friction: 14 }, 
+  });
+
+  const animatedPostCount = useSpring({
+    from: { number: 0 },
+    to: { number: postCount },
+    delay: 200, 
+    config: { tension: 120, friction: 14 }, 
+  });
+
   return (
-    <>
-      <div className="bg-white h-screen w-full flex-col items-center justify-center">
-        <div className="py-4 px-5">
-          <h1 className="text-4xl font-bold text-black flex items-center justify-center">
-            Dashboard Page
-          </h1>
-        </div>
-        <div className="flex justify-center items-center h-[65vh]">
-          <Cards className="bg-blue-500 flex justiy-center items-start h">
-            <p className="text-xl text-gray-700 mt-4">
-              Total Tasks: <span className="font-semibold">{taskCount}</span>
+    <div className="bg-blue-400 h-screen w-full flex-col items-center justify-center">
+      <div className="py-7 px-5">
+        <h1 className="text-4xl font-bold text-black flex items-center justify-center">
+          Dashboard Page
+        </h1>
+      </div>
+      <div className="flex justify-center items-center h-[65vh]">
+        <div className="flex space-x-4">
+          <Cards className="bg-blue-500 flex justify-center items-start border-2 border-black p-4">
+            <p className="text-xl text-gray-700">
+              Total Tasks:{" "}
+              <animated.span className="font-semibold">
+                {animatedTaskCount.number.to((n) => n.toFixed(0))}
+              </animated.span>
+            </p>
+          </Cards>
+          <Cards className="bg-green-500 flex justify-center items-start border-2 border-black p-4">
+            <p className="text-xl text-gray-700">
+              Total Posts:{" "}
+              <animated.span className="font-semibold">
+                {animatedPostCount.number.to((n) => n.toFixed(0))}
+              </animated.span>
             </p>
           </Cards>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

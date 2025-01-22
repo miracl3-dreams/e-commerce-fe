@@ -8,6 +8,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast, Bounce } from "react-toastify";
 
 const Posts = () => {
   // State Variables
@@ -74,8 +75,20 @@ const Posts = () => {
       return response.data.data;
     },
     onSuccess: () => {
+      toast.success("Task deleted successfully!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
       setNewPost({ title: "", body: "" });
       queryClient.invalidateQueries(["posts"]);
+      setIsModalOpen(false);
     },
     onError: (error) => {
       console.error("Error creating post:", error);
@@ -196,7 +209,6 @@ const Posts = () => {
         Posts and Comments
       </h1>
 
-      {/* Error & Loading States */}
       {isError && (
         <div className="text-red-500 text-center mb-4">
           Failed to fetch posts. Please try again later.
@@ -205,7 +217,6 @@ const Posts = () => {
       {isLoading && <div className="text-center mb-4">Loading...</div>}
 
       <div className="flex flex-col items-center gap-5 w-full">
-        {/* Create Post Section */}
         <div className="bg-blue-500 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
           <div className="flex w-full">
             <input
@@ -217,13 +228,11 @@ const Posts = () => {
           </div>
         </div>
 
-        {/* Display Posts with Infinite Scroll */}
         <div className="bg-gray-300 p-6 rounded-md w-full max-w-5xl">
           <h2 className="text-black text-2xl font-bold mb-4 text-center">
             All Posts
           </h2>
 
-          {/* Search Posts Section */}
           <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
             <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
             <input
@@ -252,7 +261,6 @@ const Posts = () => {
                     <h3 className="text-xl font-bold mb-2">{post.title}</h3>
                     <p className="mb-4 text-gray-700">{post.body}</p>
 
-                    {/* Display Comments */}
                     <div className="mt-4 bg-gray-100 rounded-md p-4 shadow-md">
                       <h4 className="font-bold text-lg mb-3">Comments</h4>
                       <div
@@ -298,8 +306,7 @@ const Posts = () => {
                           )}
                         </div>
                       </div>
-
-                      {/* Add Comment */}
+                      
                       <div className="mt-4">
                         <textarea
                           className="px-4 py-2 rounded-md w-full border border-gray-300"
@@ -331,7 +338,6 @@ const Posts = () => {
           </div>
         </div>
 
-        {/* Modal for Creating Post*/}
         <Modal
           isOpen={isModalOpen}
           className="bg-slate-300"

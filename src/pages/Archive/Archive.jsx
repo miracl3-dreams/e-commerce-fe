@@ -258,6 +258,10 @@ const Archive = () => {
     },
   });
 
+  const handleForceDeleteTask = (taskId) => {
+    forceDeleteTaskMutation.mutate(taskId);
+  };
+
   // Setting document title
   useEffect(() => {
     document.title = "Archive - Task Management";
