@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast, Bounce } from "react-toastify";
+import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Posts = () => {
   // State Variables
@@ -204,7 +205,10 @@ const Posts = () => {
   const allPosts = data ? data.pages.flatMap((page) => page.data.data) : [];
 
   return (
-    <div className="bg-white relative flex flex-col items-center h-full w-full">
+    <div
+      className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImg})` }}
+    >
       <h1 className="font-poppins font-bold text-3xl text-black py-8">
         Posts and Comments
       </h1>
@@ -217,7 +221,7 @@ const Posts = () => {
       {isLoading && <div className="text-center mb-4">Loading...</div>} */}
 
       <div className="flex flex-col items-center gap-5 w-full">
-        <div className="bg-blue-500 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+        <div className="bg-blue-400 bg-opacity-95 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
           <div className="flex w-full">
             <input
               className="px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring focus:ring-blue-300 w-full"
@@ -228,12 +232,12 @@ const Posts = () => {
           </div>
         </div>
 
-        <div className="bg-gray-300 p-6 rounded-md w-full max-w-5xl">
+        <div className="bg-blue-400 bg-opacity-95 p-6 rounded-md w-full max-w-5xl">
           <h2 className="text-black text-2xl font-bold mb-4 text-center">
             All Posts
           </h2>
 
-          <div className="bg-gray-200 p-6 rounded-md w-full max-w-5xl">
+          <div className="bg-white p-6 rounded-md w-full max-w-5xl">
             <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
             <input
               className="px-4 py-2 rounded-md w-full border border-gray-300"
@@ -306,7 +310,7 @@ const Posts = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="mt-4">
                         <textarea
                           className="px-4 py-2 rounded-md w-full border border-gray-300"

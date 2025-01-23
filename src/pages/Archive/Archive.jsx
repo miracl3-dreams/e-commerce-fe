@@ -4,6 +4,7 @@ import Button from "../../components/Button";
 import { toast, Bounce } from "react-toastify";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "../../utils/Axios";
+import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Archive = () => {
   // State hooks
@@ -269,7 +270,10 @@ const Archive = () => {
 
   return (
     <>
-      <div className="bg-white relative flex flex-col items-center h-full w-full">
+      <div
+        className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
+        style={{ backgroundImage: `url(${backgroundImg})` }}
+      >
         <h1 className="font-poppins font-bold text-3xl text-black py-8">
           Archived Tasks
         </h1>

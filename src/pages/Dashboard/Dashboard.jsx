@@ -67,7 +67,7 @@ const Dashboard = () => {
           Dashboard Page
         </h1>
       </div>
-      <div className="flex justify-center items-center h-[65vh]">
+      <div className="flex justify-center items-center h-[10vh]">
         <div className="flex space-x-4">
           <Cards className="bg-blue-500 flex justify-center items-start border-2 border-black p-4">
             <p className="text-xl text-gray-700">

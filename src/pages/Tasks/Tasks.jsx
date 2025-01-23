@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Cards from "../../components/Cards";
 import Button from "../../components/Button";
-import Loading from "../../components/Loading"
+import Loading from "../../components/Loading";
 import Modal from "../../components/Modal";
 import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
+import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Tasks = () => {
   // State Variables
@@ -296,13 +297,16 @@ const Tasks = () => {
 
   return (
     <>
-      <div className="bg-white relative flex flex-col items-center h-full w-full">
+      <div
+        className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
+        style={{ backgroundImage: `url(${backgroundImg})` }}
+      >
         <h1 className="font-poppins font-bold text-3xl text-black py-8">
           Tasks
         </h1>
 
         <div className="flex flex-col items-center gap-5 w-full">
-          <div className="bg-blue-500 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+          <div className="bg-blue-400 bg-opacity-95 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
             {/* Controls for Creating and Searching Tasks */}
             <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
               <div className="flex items-center gap-x-2">
@@ -413,7 +417,7 @@ const Tasks = () => {
           {/* Modal for Creating or Updating Tasks */}
           <Modal
             isOpen={isModalOpen}
-            className="bg-blue-500 border-2 border-black"
+            className="bg-blue-400"
             closeModal={() => setIsModalOpen(false)}
           >
             <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
@@ -434,7 +438,9 @@ const Tasks = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                 />
-                <label className="text-black font-bold">Task Description:</label>
+                <label className="text-black font-bold">
+                  Task Description:
+                </label>
                 <textarea
                   className="w-full px-4 py-2 border rounded-md mb-3"
                   name="task"
