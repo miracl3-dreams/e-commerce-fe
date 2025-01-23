@@ -7,5 +7,5 @@ Learn more about the following technologies:
 - [ShadCN](https://ui.shadcn.com/)
 
 ## Get Started:
-Use **git clone** to clone this repo:
+Use `git clone` to clone this repo:
 
