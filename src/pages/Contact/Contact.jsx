@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../utils/Axios";
 import backgroundImg from "../../assets/images/background-image.jpg";
 
@@ -33,6 +33,10 @@ const Contact = () => {
     }
   };
 
+  useEffect(() => {
+      document.title = "Contact - Task Management";
+    });
+
   return (
     <>
       <div className="min-h-screen flex flex-col">
@@ -57,7 +61,7 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your Name"
-                  className="w-full p-3 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                   required
                 />
               </div>
@@ -68,7 +72,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email Address"
-                  className="w-full p-3 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                   required
                 />
               </div>
@@ -78,14 +82,14 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleChange}
                   placeholder="Your Message"
-                  className="w-full p-3 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                   rows="5"
                   required
                 ></textarea>
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-500 text-white p-3 rounded-md shadow-md hover:bg-blue-600 transition"
+                className="w-full bg-blue-500 text-white p-2 rounded-md shadow-md hover:bg-blue-600 transition"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Sending..." : "Send Message"}

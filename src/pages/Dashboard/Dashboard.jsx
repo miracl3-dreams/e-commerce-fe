@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "../../utils/Axios";
 import Cards from "../../components/Cards";
 import { useSpring, animated } from "@react-spring/web";
+import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Dashboard = () => {
   const [taskCount, setTaskCount] = useState(0);
@@ -31,10 +32,9 @@ const Dashboard = () => {
         },
         params: { per_page: 1 },
       });
-      
+
       const totalPosts = response.data?.meta?.total;
-      setPostCount(totalPosts || 0); 
-  
+      setPostCount(totalPosts || 0);
     } catch (error) {
       console.error("Failed to fetch post count:", error);
     }
@@ -45,29 +45,31 @@ const Dashboard = () => {
     fetchPostCount();
   }, []);
 
-
   const animatedTaskCount = useSpring({
     from: { number: 0 },
     to: { number: taskCount },
-    delay: 200, 
-    config: { tension: 120, friction: 14 }, 
+    delay: 200,
+    config: { tension: 120, friction: 14 },
   });
 
   const animatedPostCount = useSpring({
     from: { number: 0 },
     to: { number: postCount },
-    delay: 200, 
-    config: { tension: 120, friction: 14 }, 
+    delay: 200,
+    config: { tension: 120, friction: 14 },
   });
 
   return (
-    <div className="bg-blue-400 h-screen w-full flex-col items-center justify-center">
+    <div
+      className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImg})` }}
+    >
       <div className="py-7 px-5">
         <h1 className="text-4xl font-bold text-black flex items-center justify-center">
           Dashboard Page
         </h1>
       </div>
-      <div className="flex justify-center items-center h-[10vh]">
+      <div className="flex justify-center items-center h-[65vh]">
         <div className="flex space-x-4">
           <Cards className="bg-blue-500 flex justify-center items-start border-2 border-black p-4">
             <p className="text-xl text-gray-700">

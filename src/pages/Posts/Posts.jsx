@@ -240,7 +240,7 @@ const Posts = () => {
           <div className="bg-white p-6 rounded-md w-full max-w-5xl">
             <h2 className="text-black font-bold text-2xl mb-5">Search Posts</h2>
             <input
-              className="px-4 py-2 rounded-md w-full border border-gray-300"
+              className="p-2 rounded-md w-full border border-gray-300 font-poppins"
               placeholder="Search..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -344,19 +344,19 @@ const Posts = () => {
 
         <Modal
           isOpen={isModalOpen}
-          className="bg-slate-300"
+          className="bg-blue-400"
           closeModal={() => setIsModalOpen(false)}
         >
           <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
-            <h2 className="text-2xl font-semibold text-black">Create Post</h2>
+            <h2 className="text-2xl font-bold text-black">Create Post</h2>
             <form
-              className="flex flex-col w-full"
+              className="flex flex-col w-full gap-1"
               onSubmit={(e) => {
                 e.preventDefault();
                 createPost(formData);
               }}
             >
-              <label className="text-black">Title...</label>
+              <label className="text-black font-bold">Title:</label>
               <input
                 className="w-full px-4 py-2 border rounded-md mb-3"
                 name="Title"
@@ -365,7 +365,7 @@ const Posts = () => {
                   setNewPost((prev) => ({ ...prev, title: e.target.value }))
                 }
               />
-              <label className="text-black">Body...</label>
+              <label className="text-black font-bold">Body:</label>
               <textarea
                 className="w-full px-4 py-2 border rounded-md mb-3"
                 name="Body"

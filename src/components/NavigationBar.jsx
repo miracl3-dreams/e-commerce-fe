@@ -127,7 +127,7 @@ const NavigationBar = () => {
                     className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
                     onClick={handleSettings}
                   >
-                    <FiSettings /> Settings
+                    <FiSettings /> Account Settings
                   </button>
                   <button
                     className="flex items-center gap-2 px-2 py-1 w-full hover:bg-gray-100 rounded text-left"
