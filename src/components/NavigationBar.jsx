@@ -8,6 +8,7 @@ import IconProfile from "./IconProfile";
 import Cards from "./Cards";
 import axios from "../utils/Axios";
 import { toast, Bounce } from "react-toastify";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "../components/ui/tooltip"; 
 
 const NavigationBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -82,15 +83,32 @@ const NavigationBar = () => {
           Task Management
         </Link>
         <ul className="hidden lg:flex items-center gap-8 font-bold">
-          <li>
-            <Link to={"tasks"}>Tasks</Link>
-          </li>
-          <li>
-            <Link to={"posts"}>Posts</Link>
-          </li>
-          <li>
-            <Link to={"contact"}>Contact</Link>
-          </li>
+          <TooltipProvider>
+            <li>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link to={"tasks"}>Tasks</Link>
+                </TooltipTrigger>
+                <TooltipContent>Manage your tasks</TooltipContent>
+              </Tooltip>
+            </li>
+            <li>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link to={"posts"}>Posts</Link>
+                </TooltipTrigger>
+                <TooltipContent>View posts</TooltipContent>
+              </Tooltip>
+            </li>
+            <li>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link to={"contact"}>Contact</Link>
+                </TooltipTrigger>
+                <TooltipContent>Get in touch</TooltipContent>
+              </Tooltip>
+            </li>
+          </TooltipProvider>
           <li className="relative">
             <div
               className="flex items-center cursor-pointer"
@@ -131,19 +149,40 @@ const NavigationBar = () => {
         {mobileView && (
           <ul className="fixed left-0 top-0 z-10 bg-blue-500 flex flex-col items-center gap-5 px-10 pt-10 h-[100vh] text-white font-bold">
             <li>
-              <Link onClick={handleHamburgerButton} to={"tasks"}>
-                Tasks
-              </Link>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Link onClick={handleHamburgerButton} to={"tasks"}>
+                      Tasks
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>Manage your tasks</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </li>
             <li>
-              <Link onClick={handleHamburgerButton} to={"posts"}>
-                Posts
-              </Link>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Link onClick={handleHamburgerButton} to={"posts"}>
+                      Posts
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>View posts</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </li>
             <li>
-              <Link onClick={handleHamburgerButton} to={"contact"}>
-                Contact
-              </Link>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Link onClick={handleHamburgerButton} to={"contact"}>
+                      Contact
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>Get in touch</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </li>
             <li className="relative">
               <div
