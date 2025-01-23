@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    // ...
-    "baseUrl": ".",
+    "baseUrl": ".",  
     "paths": {
-      "@/*": ["./src/*"],
-      "@shadcn/ui": ["./src/shadcn"]
+      "@/*": ["./src/*"],  
+      "@shadcn/ui": ["./src/shadcn"]  
     }
-    // ...
-  }
+  },
+  "include": [
+    "src/**/*"  
+  ]
 }
