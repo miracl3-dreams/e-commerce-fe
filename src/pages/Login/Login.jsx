@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
-import { FaLock, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import Button from "../../components/Button";
 import Loading from "../../components/Loading";
 import axios from "../../utils/Axios";
@@ -122,24 +122,24 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col ">
       {(loginMutation.isLoading || loadingDelay) && (
-            <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-20">
-              <Loading />
-            </div>
-          )}
+        <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-20">
+          <Loading />
+        </div>
+      )}
       <div
         className="bg-white bg-cover bg-bottom flex justify-center items-center flex-1"
         style={{ backgroundImage: `url(${backgroundImg})` }}
       >
         <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%] relative">
-          <h1 className="font-poppins text-2xl font-bold text-center mb-5">
+          {/* <h1 className="font-poppins text-2xl font-bold text-center mb-5">
             Task Management
-          </h1>
+          </h1> */}
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <h2 className="font-poppins font-bold text-xl text-center">
-              Sign In
+              Login
             </h2>
             <div className="flex items-center gap-2">
-              <FaUser className="text-black" />
+              <FaEnvelope className="text-black" />
               <input
                 className="flex-1 py-2 px-3 border rounded-md"
                 name="email"
@@ -182,22 +182,23 @@ const Login = () => {
               type="submit"
               disabled={loginMutation.isLoading || loadingDelay || cooldown}
             >
-              {loginMutation.isLoading || loadingDelay ? "Logging In..." : "Log In"}
+              {loginMutation.isLoading || loadingDelay
+                ? "Logging In..."
+                : "Log In"}
             </Button>
             <p className="text-center text-sm mt-4">
               Don't have an account?{" "}
               <Link className="text-blue-500 hover:underline" to={"/sign-up"}>
-                Sign Up
+                Register
               </Link>
             </p>
           </form>
-
         </div>
       </div>
-  
+
       <Footer />
     </div>
   );
-};  
+};
 
 export default Login;

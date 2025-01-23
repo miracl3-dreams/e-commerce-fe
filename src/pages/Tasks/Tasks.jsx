@@ -413,28 +413,28 @@ const Tasks = () => {
           {/* Modal for Creating or Updating Tasks */}
           <Modal
             isOpen={isModalOpen}
-            className="bg-slate-300"
+            className="bg-blue-500 border-2 border-black"
             closeModal={() => setIsModalOpen(false)}
           >
             <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
-              <h2 className="text-2xl font-semibold text-black">
+              <h2 className="text-2xl font-bold text-black">
                 {currentTask ? "Update Task" : "Create Task"}
               </h2>
               <form
-                className="flex flex-col w-full"
+                className="flex flex-col w-full gap-1"
                 onSubmit={(e) => {
                   e.preventDefault();
                   createOrUpdateTask(formData);
                 }}
               >
-                <label className="text-black">Task Title:</label>
+                <label className="text-black font-bold">Task Title:</label>
                 <input
                   className="w-full px-4 py-2 border rounded-md mb-3"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                 />
-                <label className="text-black">Task Description:</label>
+                <label className="text-black font-bold">Task Description:</label>
                 <textarea
                   className="w-full px-4 py-2 border rounded-md mb-3"
                   name="task"

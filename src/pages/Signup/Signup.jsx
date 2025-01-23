@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { FaLock, FaEnvelope, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { registerSchema } from "../../utils/validations/UserSchema";
 import axios from "../../utils/Axios";
@@ -26,6 +27,7 @@ const Signup = () => {
     password_confirmation: "",
   });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -101,56 +103,88 @@ const Signup = () => {
         style={{ backgroundImage: `url(${backgroundImg})` }}
       >
         <div className="bg-gray-100 bg-opacity-90 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px]">
-          <h1 className="font-poppins text-2xl font-bold text-center mb-5">
+          {/* <h1 className="font-poppins text-2xl font-bold text-center mb-5">
             Task Management
-          </h1>
+          </h1> */}
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <h2 className="font-poppins font-bold text-xl text-center">
-              Sign Up
+              Register
             </h2>
-            <input
-              className="flex-1 py-2 px-3 border rounded-md"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Full Name"
-              required
-            />
+            <div className="flex items-center gap-2">
+              <FaUser className="text-black" />
+              <input
+                className="flex-1 py-2 px-3 border rounded-md"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Full Name"
+                required
+              />
+            </div>
             {errors.name && (
               <p className="text-red-500 text-sm">{errors.name}</p>
             )}
-            <input
-              className="flex-1 py-2 px-3 border rounded-md"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-              required
-            />
+            <div className="flex items-center gap-2">
+              <FaEnvelope className="text-black" />
+              <input
+                className="flex-1 py-2 px-3 border rounded-md"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email Address"
+                required
+              />
+            </div>
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
             )}
-            <input
-              className="flex-1 py-2 px-3 border rounded-md"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Password"
-              required
-            />
+            <div className="flex items-center gap-2 relative">
+              <FaLock className="text-black" />
+              <input
+                className="flex-1 py-2 px-3 border rounded-md"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                required
+              />
+              <div
+                className="absolute right-3 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <FaEye className="text-gray-500" />
+                ) : (
+                  <FaEyeSlash className="text-gray-500" />
+                )}
+              </div>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
             )}
-            <input
-              className="flex-1 py-2 px-3 border rounded-md"
-              type="password"
-              name="password_confirmation"
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-              required
-            />
+            <div className="flex items-center gap-2 relative">
+              <FaLock className="text-black" />
+              <input
+                className="flex-1 py-2 px-3 border rounded-md"
+                type={showPassword ? "text" : "password"}
+                name="password_confirmation"
+                value={formData.password_confirmation}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                required
+              />
+              <div
+                className="absolute right-3 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <FaEye className="text-gray-500" />
+                ) : (
+                  <FaEyeSlash className="text-gray-500" />
+                )}
+              </div>
+            </div>
             {errors.password_confirmation && (
               <p className="text-red-500 text-sm">
                 {errors.password_confirmation}

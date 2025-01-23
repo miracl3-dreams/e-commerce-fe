@@ -209,12 +209,12 @@ const Posts = () => {
         Posts and Comments
       </h1>
 
-      {isError && (
+      {/* {isError && (
         <div className="text-red-500 text-center mb-4">
           Failed to fetch posts. Please try again later.
         </div>
       )}
-      {isLoading && <div className="text-center mb-4">Loading...</div>}
+      {isLoading && <div className="text-center mb-4">Loading...</div>} */}
 
       <div className="flex flex-col items-center gap-5 w-full">
         <div className="bg-blue-500 flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
