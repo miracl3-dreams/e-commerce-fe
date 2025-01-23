@@ -12,3 +12,5 @@ Use `git clone` to clone this repo:
 ```console
 $ git clone https://github.com/cacaogoldxyz/cacao-god-fe.git
 ```
+or
+Click `Clone or download` and `Download Zip` to get this repo.
