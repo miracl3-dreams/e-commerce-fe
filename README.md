@@ -8,4 +8,6 @@ Learn more about the following technologies:
 
 ## Get Started:
 Use `git clone` to clone this repo:
-
+``console
+$ git clone https://github.com/cacaogoldxyz/cacao-god-fe.git
+``
