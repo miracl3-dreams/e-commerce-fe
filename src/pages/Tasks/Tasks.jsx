@@ -7,7 +7,6 @@ import Loading from "../../components/Loading";
 import Modal from "../../components/Modal";
 import axios from "../../utils/Axios";
 import { toast, Bounce } from "react-toastify";
-import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Tasks = () => {
   // State Variables
@@ -297,233 +296,224 @@ const Tasks = () => {
 
   return (
     <>
-      <div
-        className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
-        style={{ backgroundImage: `url(${backgroundImg})` }}
-      >
-        <h1 className="font-poppins font-bold text-3xl text-black py-8">
-          Tasks
-        </h1>
+      <h1 className="font-poppins font-bold text-3xl text-black py-8 text-center">Tasks</h1>
 
-        <div className="flex flex-col items-center gap-5 w-full">
-          <div className="bg-blue-400 bg-opacity-95 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
-            {/* Controls for Creating and Searching Tasks */}
-            <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
-              <div className="flex items-center gap-x-2">
-                <Button
-                  className="bg-green-500 px-4 py-2 rounded-md"
-                  onClick={openModalForCreate}
-                >
-                  Create
-                </Button>
-                <Button className="bg-yellow-500 px-4 py-2 rounded-md">
-                  <Link to={"archive"}>Archive</Link>
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  className="px-4 py-2 rounded-md"
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-md"
-                  onClick={handleSearch}
-                >
-                  Search
-                </Button>
-              </div>
+      <div className="flex flex-col items-center gap-5 w-full">
+        <div className="bg-blue-400 bg-opacity-95 absolute flex flex-col items-start gap-6 p-8 w-full max-w-5xl rounded-md font-poppins">
+          {/* Controls for Creating and Searching Tasks */}
+          <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between w-full">
+            <div className="flex items-center gap-x-2">
+              <Button
+                className="bg-green-500 px-4 py-2 rounded-md"
+                onClick={openModalForCreate}
+              >
+                Create
+              </Button>
+              <Button className="bg-yellow-500 px-4 py-2 rounded-md">
+                <Link to={"archive"}>Archive</Link>
+              </Button>
             </div>
-
-            {/* Display Tasks in Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
-              {noDataFound ? (
-                <p className="col-span-full text-center text-2xl text-gray-400">
-                  No search found.
-                </p>
-              ) : data && Array.isArray(data.data) && data.data.length > 0 ? (
-                data.data.map((task) => (
-                  <Cards key={task.id} className={"bg-white"}>
-                    <h1 className="text-lg font-semibold">
-                      Task Title: {task.name}
-                    </h1>
-                    <h1 className="text-lg font-semibold">
-                      Task Description: {task.task}
-                    </h1>
-                    <h1 className="text-lg font-semibold">
-                      Status: {task.status}
-                    </h1>
-
-                    <div className="flex gap-3 mt-4 justify-center">
-                      <Button
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                        onClick={() => openModalForUpdate(task)}
-                      >
-                        Update
-                      </Button>
-                      <Button
-                        className="bg-red-500 text-white px-4 py-2 rounded-md"
-                        onClick={() => openDeleteModal(task.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </Cards>
-                ))
-              ) : (
-                <p className="col-span-full text-center text-2xl text-gray-400">
-                  No tasks available.
-                </p>
-              )}
+            <div className="flex items-center gap-2">
+              <input
+                className="px-4 py-2 rounded-md"
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button
+                className="bg-yellow-500 text-white px-4 py-2 rounded-md"
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
             </div>
+          </div>
 
-            {/* Pagination Controls (only shown if tasks are available) */}
-            {data && Array.isArray(data.data) && data.data.length > 0 && (
-              <div className="w-full flex justify-center gap-4 mt-4">
-                <Button
-                  onClick={handlePreviousPage}
-                  disabled={data?.meta?.current_page <= 1}
-                  className="bg-gray-400 text-white rounded-md"
-                >
-                  Previous
-                </Button>
+          {/* Display Tasks in Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1280px] mx-auto">
+            {noDataFound ? (
+              <p className="col-span-full text-center text-2xl text-gray-400">
+                No search found.
+              </p>
+            ) : data && Array.isArray(data.data) && data.data.length > 0 ? (
+              data.data.map((task) => (
+                <Cards key={task.id} className={"bg-white"}>
+                  <h1 className="text-lg font-semibold">
+                    Task Title: {task.name}
+                  </h1>
+                  <h1 className="text-lg font-semibold">
+                    Task Description: {task.task}
+                  </h1>
+                  <h1 className="text-lg font-semibold">
+                    Status: {task.status}
+                  </h1>
 
-                {/* Dynamic Pagination Buttons */}
-                {getPaginationButtons().map((page, index) => (
-                  <Button
-                    key={index}
-                    onClick={() => handlePageClick(page)}
-                    className={`bg-black text-white rounded-md px-4 py-2 ${
-                      page === currentPage ? "bg-green-500" : "hover:bg-black"
-                    }`}
-                  >
-                    {page}
-                  </Button>
-                ))}
-
-                <Button
-                  onClick={handleNextPage}
-                  disabled={data?.meta?.current_page >= data?.meta?.last_page}
-                  className="bg-gray-400 text-white rounded-md"
-                >
-                  Next
-                </Button>
-              </div>
+                  <div className="flex gap-3 mt-4 justify-center">
+                    <Button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => openModalForUpdate(task)}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => openDeleteModal(task.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </Cards>
+              ))
+            ) : (
+              <p className="col-span-full text-center text-2xl text-gray-400">
+                No tasks available.
+              </p>
             )}
           </div>
 
-          {/* Modal for Creating or Updating Tasks */}
-          <Modal
-            isOpen={isModalOpen}
-            className="bg-blue-400"
-            closeModal={() => setIsModalOpen(false)}
-          >
-            <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
-              <h2 className="text-2xl font-bold text-black">
-                {currentTask ? "Update Task" : "Create Task"}
-              </h2>
-              <form
-                className="flex flex-col w-full gap-1"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createOrUpdateTask(formData);
-                }}
+          {/* Pagination Controls (only shown if tasks are available) */}
+          {data && Array.isArray(data.data) && data.data.length > 0 && (
+            <div className="w-full flex justify-center gap-4 mt-4">
+              <Button
+                onClick={handlePreviousPage}
+                disabled={data?.meta?.current_page <= 1}
+                className="bg-gray-400 text-white rounded-md"
               >
-                <label className="text-black font-bold">Task Title:</label>
-                <input
-                  className="w-full px-4 py-2 border rounded-md mb-3"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                />
-                <label className="text-black font-bold">
-                  Task Description:
-                </label>
-                <textarea
-                  className="w-full px-4 py-2 border rounded-md mb-3"
-                  name="task"
-                  value={formData.task}
-                  onChange={handleInputChange}
-                  rows="5"
-                />
+                Previous
+              </Button>
 
-                {currentTask && (
-                  <div className="flex flex-col gap-2">
-                    <span>Status:</span>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="status"
-                        value="true"
-                        checked={formData.status === true}
-                        onChange={handleInputChange}
-                      />
-                      <span className="ml-2">Completed</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="status"
-                        value="false"
-                        checked={formData.status === false}
-                        onChange={handleInputChange}
-                      />
-                      <span className="ml-2">Incomplete</span>
-                    </label>
-                  </div>
-                )}
-
-                <div className="flex justify-center gap-4 mt-4">
-                  <Button
-                    type="button"
-                    className="bg-gray-400 text-white rounded-md"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-green-500 text-white rounded-md"
-                  >
-                    {currentTask ? "Update" : "Create"}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </Modal>
-
-          {/* Modal for Deleting Tasks */}
-          <Modal
-            isOpen={isDeleteModalOpen}
-            closeModal={closeDeleteModal}
-            className="bg-white"
-          >
-            <div className="flex flex-col items-center">
-              <p className="font-semibold text-xl text-black">
-                Are you sure you want to delete this task?
-              </p>
-              <div className="flex gap-4 mt-5">
+              {/* Dynamic Pagination Buttons */}
+              {getPaginationButtons().map((page, index) => (
                 <Button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                  onClick={() => {
-                    deleteTask(taskToDelete);
-                    closeDeleteModal();
-                  }}
+                  key={index}
+                  onClick={() => handlePageClick(page)}
+                  className={`bg-black text-white rounded-md px-4 py-2 ${
+                    page === currentPage ? "bg-green-500" : "hover:bg-black"
+                  }`}
                 >
-                  Yes, Delete
+                  {page}
                 </Button>
+              ))}
+
+              <Button
+                onClick={handleNextPage}
+                disabled={data?.meta?.current_page >= data?.meta?.last_page}
+                className="bg-gray-400 text-white rounded-md"
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Modal for Creating or Updating Tasks */}
+        <Modal
+          isOpen={isModalOpen}
+          className="bg-blue-400"
+          closeModal={() => setIsModalOpen(false)}
+        >
+          <div className="flex flex-col items-center gap-2 pt-5 w-[360px]">
+            <h2 className="text-2xl font-bold text-black">
+              {currentTask ? "Update Task" : "Create Task"}
+            </h2>
+            <form
+              className="flex flex-col w-full gap-1"
+              onSubmit={(e) => {
+                e.preventDefault();
+                createOrUpdateTask(formData);
+              }}
+            >
+              <label className="text-black font-bold">Task Title:</label>
+              <input
+                className="w-full px-4 py-2 border rounded-md mb-3"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
+              <label className="text-black font-bold">Task Description:</label>
+              <textarea
+                className="w-full px-4 py-2 border rounded-md mb-3"
+                name="task"
+                value={formData.task}
+                onChange={handleInputChange}
+                rows="5"
+              />
+
+              {currentTask && (
+                <div className="flex flex-col gap-2">
+                  <span>Status:</span>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="true"
+                      checked={formData.status === true}
+                      onChange={handleInputChange}
+                    />
+                    <span className="ml-2">Completed</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="false"
+                      checked={formData.status === false}
+                      onChange={handleInputChange}
+                    />
+                    <span className="ml-2">Incomplete</span>
+                  </label>
+                </div>
+              )}
+
+              <div className="flex justify-center gap-4 mt-4">
                 <Button
-                  className="bg-gray-400 text-white px-4 py-2 rounded-md"
-                  onClick={closeDeleteModal}
+                  type="button"
+                  className="bg-gray-400 text-white rounded-md"
+                  onClick={() => setIsModalOpen(false)}
                 >
                   Cancel
                 </Button>
+                <Button
+                  type="submit"
+                  className="bg-green-500 text-white rounded-md"
+                >
+                  {currentTask ? "Update" : "Create"}
+                </Button>
               </div>
+            </form>
+          </div>
+        </Modal>
+
+        {/* Modal for Deleting Tasks */}
+        <Modal
+          isOpen={isDeleteModalOpen}
+          closeModal={closeDeleteModal}
+          className="bg-white"
+        >
+          <div className="flex flex-col items-center">
+            <p className="font-semibold text-xl text-black">
+              Are you sure you want to delete this task?
+            </p>
+            <div className="flex gap-4 mt-5">
+              <Button
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+                onClick={() => {
+                  deleteTask(taskToDelete);
+                  closeDeleteModal();
+                }}
+              >
+                Yes, Delete
+              </Button>
+              <Button
+                className="bg-gray-400 text-white px-4 py-2 rounded-md"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </Button>
             </div>
-          </Modal>
-        </div>
+          </div>
+        </Modal>
       </div>
     </>
   );

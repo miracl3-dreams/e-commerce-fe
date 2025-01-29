@@ -9,7 +9,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast, Bounce } from "react-toastify";
-import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Posts = () => {
   // State Variables
@@ -76,7 +75,7 @@ const Posts = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      toast.success("Task deleted successfully!", {
+      toast.success("Create posted successfully!", {
         position: "bottom-right",
         autoClose: 1500,
         hideProgressBar: false,
@@ -114,8 +113,6 @@ const Posts = () => {
       return response.data.data;
     },
     onMutate: (postId) => {
-      console.log("onMutate - Before updating cache:");
-
       queryClient.setQueryData(["posts", query], (oldData) => {
         if (!oldData) return;
 
@@ -150,7 +147,6 @@ const Posts = () => {
       });
     },
     onSuccess: (newCommentData) => {
-      console.log("onSuccess - After mutation, before invalidating queries:");
       queryClient.invalidateQueries(["posts", query]);
 
       queryClient.setQueryData(["posts", query], (oldData) => {
@@ -205,11 +201,8 @@ const Posts = () => {
   const allPosts = data ? data.pages.flatMap((page) => page.data.data) : [];
 
   return (
-    <div
-      className="relative flex flex-col items-center h-screen w-full bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
-    >
-      <h1 className="font-poppins font-bold text-3xl text-black py-8">
+    <>
+      <h1 className="font-poppins font-bold text-3xl text-black py-8 text-center">
         Posts and Comments
       </h1>
 
@@ -394,7 +387,7 @@ const Posts = () => {
           </div>
         </Modal>
       </div>
-    </div>
+    </>
   );
 };
 

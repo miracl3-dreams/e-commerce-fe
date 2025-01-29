@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import backgroundImg from "../../assets/images/background-image.jpg";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const Settings = () => {
   const [username, setUsername] = useState("");
@@ -27,24 +29,24 @@ const Settings = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center">
       {isSubmitting && (
         <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-20">
           <p className="text-white text-lg font-semibold">Submitting...</p>
         </div>
       )}
       <div className="bg-blue-400 bg-opacity-95 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%] relative">
+        <Link to="/dashboard/tasks">
+          <IoArrowBackCircleSharp className="text-black w-[40px] h-[40px] relative -top-2 cursor-pointer" />
+        </Link>
         <h2 className="font-poppins font-bold text-xl text-center mb-6">
           Account Settings
         </h2>
 
-        {/* Update Profile Section */}
         <form onSubmit={handleUpdateProfile} className="space-y-4 mb-8">
           <h3 className="text-lg font-semibold">Update Profile</h3>
-          <div>
+          <div className="flex items-center gap-2">
+            <FaUser className="text-black" />
             <input
               type="text"
               name="username"
@@ -55,7 +57,8 @@ const Settings = () => {
               required
             />
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            <FaEnvelope className="text-black" />
             <input
               type="email"
               name="email"
@@ -74,10 +77,10 @@ const Settings = () => {
           </button>
         </form>
 
-        {/* Change Password Section */}
         <form onSubmit={handleChangePassword} className="space-y-4">
           <h3 className="text-lg font-semibold">Change Password</h3>
-          <div>
+          <div className="flex items-center gap-2">
+            <FaLock className="text-black" />
             <input
               type="password"
               name="currentPassword"
@@ -88,7 +91,8 @@ const Settings = () => {
               required
             />
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            <FaLock className="text-black" />
             <input
               type="password"
               name="newPassword"

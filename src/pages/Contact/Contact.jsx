@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "../../utils/Axios";
-import backgroundImg from "../../assets/images/background-image.jpg";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +46,6 @@ const Contact = () => {
         )}
         <div
           className="bg-white bg-cover bg-bottom flex justify-center items-center flex-1"
-          style={{ backgroundImage: `url(${backgroundImg})` }}
         >
           <div className="bg-blue-400 bg-opacity-95 px-5 py-10 rounded-md shadow-md w-[90%] max-w-[400px] md:max-w-[350px] lg:w-[30%] relative">
             <h2 className="font-poppins font-bold text-xl text-center mb-4">

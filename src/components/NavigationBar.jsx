@@ -8,7 +8,12 @@ import IconProfile from "./IconProfile";
 import Cards from "./Cards";
 import axios from "../utils/Axios";
 import { toast, Bounce } from "react-toastify";
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "../components/ui/tooltip"; 
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "../components/ui/tooltip";
 
 const NavigationBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -79,12 +84,12 @@ const NavigationBar = () => {
     <div>
       {/* Desktop Navigation */}
       <nav className="bg-blue-500 flex justify-between items-center px-5 py-5 text-white">
-        <Link to={"/dashboard"} className="text-3xl font-bold">
+        <Link to={"/dashboard"} className="text-3xl font-bold hover:text-black">
           Task Management
         </Link>
         <ul className="hidden lg:flex items-center gap-8 font-bold">
           <TooltipProvider>
-            <li>
+            <li className="hover:text-black">
               <Tooltip>
                 <TooltipTrigger>
                   <Link to={"tasks"}>Tasks</Link>
@@ -92,7 +97,7 @@ const NavigationBar = () => {
                 <TooltipContent>Manage your tasks</TooltipContent>
               </Tooltip>
             </li>
-            <li>
+            <li className="hover:text-black">
               <Tooltip>
                 <TooltipTrigger>
                   <Link to={"posts"}>Posts</Link>
@@ -100,7 +105,7 @@ const NavigationBar = () => {
                 <TooltipContent>View posts</TooltipContent>
               </Tooltip>
             </li>
-            <li>
+            <li className="hover:text-black">
               <Tooltip>
                 <TooltipTrigger>
                   <Link to={"contact"}>Contact</Link>
