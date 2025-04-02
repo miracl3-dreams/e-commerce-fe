@@ -1,5 +1,5 @@
 import React from "react";
-import footerLogo from "../../assets/hero/Logo.png";
+import Logo from "../../assets/hero/logo.png";
 import Banner from "../../assets/website/banner.png";
 import { FaInstagram, FaFacebook, FaEnvelope } from "react-icons/fa6";
 import { FaLocationArrow, FaMobileAlt } from "react-icons/fa";
@@ -30,7 +30,7 @@ const Footer = () => {
             <div className="flex flex-col items-center py-8 px-4">
               <h1 className="sm:text-3xl text-xl font-bold sm:text-left text-justify mb-3 flex items-center gap-3">
                 <img
-                  src={footerLogo}
+                  src={Logo}
                   alt="KGW Cosmetics Logo"
                   className="max-w-[50px] rounded-full"
                 />
