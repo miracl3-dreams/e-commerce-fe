@@ -2,7 +2,7 @@ import React from "react";
 import Logo from "../../assets/hero/logo.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
-import Darkmode from "../Navbar/DarkMode";
+import DarkMode from "./darkMode";
 import { RxAvatar } from "react-icons/rx";
 import { FaCaretDown } from "react-icons/fa";
 
@@ -84,7 +84,7 @@ const Navbar = () => {
 
               {/* Darkmode Switch */}
               <div>
-                <Darkmode />
+                <DarkMode />
               </div>
             </div>
           </div>
