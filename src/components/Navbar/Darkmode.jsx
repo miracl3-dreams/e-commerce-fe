@@ -2,7 +2,7 @@ import React from "react";
 import LightButton from "../../assets/website/light-mode-button.png";
 import DarkButton from "../../assets/website/dark-mode-button.png";
 
-const Darkmode = () => {
+const darkMode = () => {
   const [theme, setTheme] = React.useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
   );
@@ -41,4 +41,4 @@ const Darkmode = () => {
   );
 };
 
-export default Darkmode;
+export default darkMode;
