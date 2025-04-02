@@ -2,7 +2,7 @@ import React from "react";
 import Logo from "../../assets/hero/logo.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
-import DarkMode from "./darkMode";
+import DarkMode from "./DarkMode";
 import { RxAvatar } from "react-icons/rx";
 import { FaCaretDown } from "react-icons/fa";
 
