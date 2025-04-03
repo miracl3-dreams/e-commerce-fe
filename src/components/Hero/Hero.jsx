@@ -10,21 +10,21 @@ const ImageList = [
     img: Image1,
     title: "BE YOUR OWN KIND OF BEAUTIFUL",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
+      "Discover the transformative power of KGW Cosmetics, where elegance meets innovation.",
   },
   {
     id: 2,
     img: Image2,
     title: "BE YOUR OWN KIND OF BEAUTIFUL",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
+      "Discover the transformative power of KGW Cosmetics, where elegance meets innovation.",
   },
   {
     id: 3,
     img: Image3,
     title: "BE YOUR OWN KIND OF BEAUTIFUL",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
+      "Discover the transformative power of KGW Cosmetics, where elegance meets innovation.",
   },
 ];
 
@@ -67,7 +67,7 @@ const Hero = () => {
                       data-aos="fade-up"
                       data-aos-duration="400"
                       data-aos-once="true"
-                      className="text-sm sm:text-base text-gray-700"
+                      className="text-sm sm:text-base text-primary font-bold"
                     >
                       {data.description}
                     </p>

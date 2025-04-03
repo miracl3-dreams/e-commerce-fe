@@ -37,16 +37,9 @@ const Products = () => {
       <div className="container">
         {/* Header Section */}
         <div className="text-center mb-10 max-w-[500px] mx-auto">
-          <p data-aos="fade-up" className="text-sm text-primary">
-            Top Selling Products for you
-          </p>
           <h1 data-aos="fade-up" className="text-2xl sm:text-3xl font-bold">
             KGW Cosmetic Offers
           </h1>
-          <p data-aos="fade-up" className="text-xs sm:text-sm text-gray-400">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            voluptatibus.
-          </p>
         </div>
         {/* Body Section */}
         <div>

@@ -36,9 +36,9 @@ const Footer = () => {
                 />
                 KGW Cosmetics
               </h1>
-              <p>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Minus
-                minima quia reiciendis doloremque repellat nesciunt.
+              <p className="text-center">
+                Elevate your beauty and embrace the essence of true glamour with
+                KGW Cosmetics because you deserve the best!
               </p>
             </div>
 
@@ -65,21 +65,21 @@ const Footer = () => {
                 <a href="#">
                   <FaEnvelope className="text-3xl" />
                 </a>
-                <a href="#">
+                <a href="https://www.facebook.com/share/16G7sQLJit/">
                   <FaFacebook className="text-3xl" />
                 </a>
-                <a href="#">
+                <a href="">
                   <FaInstagram className="text-3xl" />
                 </a>
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-3 mb-4">
                   <FaLocationArrow />
-                  <p>Quezon City University</p>
+                  <p>Address: 17 Matimtim Street, Quezon City</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaMobileAlt />
-                  <p>+ 123 5456 4345</p>
+                  <p>+639274282973</p>
                 </div>
               </div>
             </div>
