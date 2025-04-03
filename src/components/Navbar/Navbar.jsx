@@ -186,7 +186,7 @@ const Navbar = ({ scrollToAllProducts }) => {
       {/* Feedback Modal */}
       {feedbackOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-[90%] sm:w-[400px]">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg w-[90%] sm:w-[400px]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Customer Feedback</h2>
               <FaTimes
@@ -200,19 +200,19 @@ const Navbar = ({ scrollToAllProducts }) => {
               placeholder="Your Name (Optional)"
               value={feedbackData.name}
               onChange={handleFeedbackChange}
-              className="w-full mb-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-full mb-2 px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
             />
             <textarea
               name="message"
               placeholder="Your Feedback"
               value={feedbackData.message}
               onChange={handleFeedbackChange}
-              className="w-full mb-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-full mb-2 px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
               rows="4"
             />
             <button
               onClick={handleSubmitFeedback}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition-all"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-2xl transition-all"
             >
               Send Feedback
             </button>
