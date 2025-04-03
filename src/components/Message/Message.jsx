@@ -13,7 +13,7 @@ const Message = () => {
         </p>
         {/* Facebook Page Messenger link */}
         <a
-          href="https://www.facebook.com/messages/t/595203880323472/"
+          href="https://www.facebook.com/profile.php?id=61573162643583"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-blue-500 text-white py-2 px-6 rounded-full hover:bg-blue-600 duration-300"

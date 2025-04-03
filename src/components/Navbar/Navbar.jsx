@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Logo from "../../assets/hero/logo.png";
 import { IoMdSearch } from "react-icons/io";
-import { FaCartShopping, FaBars } from "react-icons/fa6";
+import { FaCartShopping, FaBars, FaCaretDown } from "react-icons/fa6";
 import DarkMode from "../DarkMode/DarkMode";
 import { RxAvatar } from "react-icons/rx";
-import { FaCaretDown, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Menu = [
   { id: 1, name: "Home", link: "#" },
@@ -17,8 +18,32 @@ const DropdownLinks = [
   { id: 2, name: "Eyeliners", link: "#" },
 ];
 
-const Navbar = () => {
+const Navbar = ({ scrollToAllProducts }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackData, setFeedbackData] = useState({
+    name: "",
+    message: "",
+  });
+  const navigate = useNavigate();
+
+  const handleFeedbackChange = (e) => {
+    setFeedbackData({ ...feedbackData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitFeedback = () => {
+    const { name, message } = feedbackData;
+    const ownerEmail = "lunas.danielle.10262002@gmail.com";
+    const subject = name
+      ? `Customer Feedback from ${name}`
+      : "Customer Feedback in KGW Cosmetics";
+    const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${ownerEmail}&su=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(message)}`;
+
+    window.open(gmailLink, "_blank");
+    setFeedbackOpen(false);
+  };
 
   return (
     <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 relative z-40">
@@ -50,17 +75,18 @@ const Navbar = () => {
               <IoMdSearch className="text-gray-500 group-hover:text-primary absolute top-1/2 -translate-y-1/2 right-3" />
             </div>
 
-            {/* Customer Button */}
+            {/* Customer Feedback Button */}
             <button
-              onClick={() => alert("Customer button clicked")}
-              className="text-white py-1 px-1 rounded-full flex items-center gap-4 group"
+              onClick={() => setFeedbackOpen(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded-full flex items-center gap-3 transition-all duration-200"
             >
               <RxAvatar className="text-xl text-white drop-shadow-xl cursor-pointer" />
+              <span>Feedback</span>
             </button>
 
-            {/* Order Button */}
+            {/* Shop Cart Button */}
             <button
-              onClick={() => alert("Order button clicked")}
+              onClick={scrollToAllProducts} // Scroll to AllProducts section
               className="bg-gradient-to-r from-primary to-secondary transition-all duration-200 text-white py-1 px-4 rounded-full flex items-center gap-3 group"
             >
               <span className="group-hover:block hidden transition-all duration-200">
@@ -101,16 +127,17 @@ const Navbar = () => {
 
         {/* Customer & Order Buttons */}
         <div className="flex flex-col gap-4">
+          {/* Opens Feedback Modal on Click */}
           <button
-            onClick={() => alert("Customer button clicked")}
+            onClick={() => setFeedbackOpen(true)}
             className="flex items-center gap-2"
           >
             <RxAvatar className="text-xl text-gray-700 dark:text-white" />
-            <span>Customer Management</span>
+            <span>Customer Feedback</span>
           </button>
 
           <button
-            onClick={() => alert("Order button clicked")}
+            onClick={scrollToAllProducts}
             className="flex items-center gap-2"
           >
             <FaCartShopping className="text-xl text-gray-700 dark:text-white" />
@@ -155,6 +182,43 @@ const Navbar = () => {
           </li>
         </ul>
       </div>
+
+      {/* Feedback Modal */}
+      {feedbackOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-[90%] sm:w-[400px]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Customer Feedback</h2>
+              <FaTimes
+                className="text-xl cursor-pointer"
+                onClick={() => setFeedbackOpen(false)}
+              />
+            </div>
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name (Optional)"
+              value={feedbackData.name}
+              onChange={handleFeedbackChange}
+              className="w-full mb-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+            />
+            <textarea
+              name="message"
+              placeholder="Your Feedback"
+              value={feedbackData.message}
+              onChange={handleFeedbackChange}
+              className="w-full mb-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+              rows="4"
+            />
+            <button
+              onClick={handleSubmitFeedback}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition-all"
+            >
+              Send Feedback
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
