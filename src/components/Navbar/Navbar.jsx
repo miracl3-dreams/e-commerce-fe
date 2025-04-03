@@ -33,7 +33,7 @@ const Navbar = ({ scrollToAllProducts }) => {
 
   const handleSubmitFeedback = () => {
     const { name, message } = feedbackData;
-    const ownerEmail = "lunas.danielle.10262002@gmail.com";
+    const ownerEmail = "kendra.gorg@gmail.com";
     const subject = name
       ? `Customer Feedback from ${name}`
       : "Customer Feedback in KGW Cosmetics";
