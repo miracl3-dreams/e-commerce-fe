@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import emailjs from "emailjs-com";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -16,23 +16,40 @@ const Message = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setIsSubmitting(true);
     setIsModalOpen(false);
 
-    try {
-      await axios.post("http://localhost:8000/api/v1/inquiries/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
+    const serviceID = "service_5nn9294";
+    const templateID = "template_pnhlv8e";
+    const userID = "9LmVpJnNuf3xCR_pZ";
 
-      toast.success("✅ Inquiry sent successfully!");
-      setFormData({ name: "", email: "", message: "" });
-    } catch (err) {
-      console.error("Error sending inquiry:", err);
-      toast.error("❌ Failed to send inquiry. Please try again.");
-    } finally {
+    // Check if all required fields are present
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error("❌ Please fill in all the fields.");
       setIsSubmitting(false);
+      return;
     }
+
+    const emailTemplateData = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+      time: new Date().toLocaleString(), // Add the time the inquiry was sent
+    };
+
+    emailjs.send(serviceID, templateID, emailTemplateData, userID).then(
+      (response) => {
+        toast.success("✅ Inquiry sent successfully!");
+        setFormData({ name: "", email: "", message: "" });
+        setIsSubmitting(false);
+      },
+      (error) => {
+        console.error("Error sending inquiry:", error.text);
+        toast.error("❌ Failed to send inquiry. Please try again.");
+        setIsSubmitting(false);
+      }
+    );
   };
 
   return (
@@ -89,6 +106,7 @@ const Message = () => {
         </form>
       </div>
 
+      {/* Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
