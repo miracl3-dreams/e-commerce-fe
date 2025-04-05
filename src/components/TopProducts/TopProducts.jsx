@@ -26,43 +26,47 @@ const ProductsData = [
 
 const TopProducts = () => {
   return (
-    <div className="container">
-      {/* Header Section */}
-      <div className="text-center mt-30 mb-20">
-        <h1 data-aos="fade-up" className="text-2xl sm:text-3xl font-bold">
-          Best Selling Products
-        </h1>
-      </div>
-      {/* Body Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 sm:gap-10 md:gap-5 place-items-center mb-10">
-        {ProductsData.map((data) => (
-          <div
-            key={data.id}
-            className="rounded-2xl bg-white dark:bg-gray-800 hover:bg-black/80 dark:hover:bg-primary hover:text-white relative shadow-xl duration-300 group max-w-[280px] mb-3"
-          >
-            {/* Image Section */}
-            <div className="h-[90px] w-[200px] sm:h-[115px]">
-              <img
-                src={data.img}
-                alt={data.title}
-                className="max-w-[130px] sm:max-w-[140px] block mx-auto transform -translate-y-16 sm:-translate-y-20 group-hover:scale-105 duration-300 drop-shadow-md"
-              />
+    <div className="px-4 mt-20 mb-10">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 data-aos="fade-up" className="text-2xl sm:text-3xl font-bold">
+            Best Selling Products
+          </h1>
+        </div>
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 place-items-center">
+          {ProductsData.map((data) => (
+            <div
+              key={data.id}
+              className="rounded-2xl bg-white dark:bg-gray-800 hover:bg-black/80 dark:hover:bg-primary hover:text-white duration-300 group w-full max-w-[260px] flex flex-col items-center"
+            >
+              {/* Image */}
+              <div className="w-full flex justify-center -mt-12">
+                <img
+                  src={data.img}
+                  alt={data.title}
+                  className="w-[120px] sm:w-[130px] object-contain group-hover:scale-105 duration-300"
+                />
+              </div>
+
+              {/* Info */}
+              <div className="p-4 text-center">
+                <h2 className="text-lg font-semibold">{data.title}</h2>
+                <p className="text-primary group-hover:text-white duration-300 text-sm mt-1">
+                  {data.description}
+                </p>
+                <button
+                  className="bg-primary text-white mt-4 py-1 px-4 rounded-full hover:scale-105 duration-300 group-hover:bg-white group-hover:text-primary"
+                  disabled
+                >
+                  Order Now
+                </button>
+              </div>
             </div>
-            {/* Details Section */}
-            <div className="p-4 text-center">
-              <h1 className="text-lg sm:text-xl font-semibold">{data.title}</h1>
-              <p className="text-primary group-hover:text-white duration-300 text-sm sm:text-base line-clamp-2">
-                {data.description}
-              </p>
-              <button
-                className="bg-primary hover:scale-105 duration-300 text-white py-1 px-4 rounded-full mt-4 group-hover:bg-white group-hover:text-primary"
-                disabled
-              >
-                Order Now
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
